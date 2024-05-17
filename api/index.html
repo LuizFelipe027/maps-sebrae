@@ -1,21 +1,26 @@
 <!DOCTYPE html>
 <html>
-
 <head>
   <title>ProjetoMaps</title>
   <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
-  <script src="https://cdn.rawgit.com/googlemaps/v3-utility-library/master/markerwithlabel/src/markerwithlabel.js"></script>
+  <script
+    src="https://cdn.rawgit.com/googlemaps/v3-utility-library/master/markerwithlabel/src/markerwithlabel.js"></script>
   <link rel="stylesheet" type="text/css" href="./style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
   <script type="module" src="./script.js"></script>
 </head>
-
 <body>
-  <div style="width: 1000px; height: 500px;">
+  <div id="map-container">
+    <div id="sidebar">
+      <h2>Informações do Local</h2>
+      <div id="tabs"> </div>
+      <div id="tab-content"> </div>
+    </div>
     <div id="map"></div>
   </div>
-  <script
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAHhb1kPzpi0_AjG9zLW1_AQkZpi30PCqA&callback=initMap&v=weekly"
-    defer>
-  </script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAHhb1kPzpi0_AjG9zLW1_AQkZpi30PCqA&libraries=places&callback=initMap"
+    defer></script>
 </body>
 </html>

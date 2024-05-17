@@ -7121,6 +7121,8 @@ let marcadoresCidade = [
   },
 ];
 
+const api_key = 'AIzaSyAHhb1kPzpi0_AjG9zLW1_AQkZpi30PCqA'
+
 module.exports = {
   marcadoresPontos,
   marcadoresCidade

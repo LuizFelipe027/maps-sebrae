@@ -45,48 +45,19 @@ async function findLatLng(arrLocais) {
   }
 }
 
-let marcadoresPiuma = [
+function ordenarPorLocal(array) {
 
-  {
-    "cidade": "Piúma ",
-    "ponto": "Monte Aghá - Parapente ",
-    "estado": "es",
-    "latitude": -20.8382491,
-    "longitude": -40.7230627
-  },
-  {
-    "cidade": "Piúma ",
-    "ponto": "Ilhas dos Cabritos ",
-    "estado": "es",
-    "latitude": -20.8382491,
-    "longitude": -40.7230627
-  },
-  {
-    "cidade": "Piúma ",
-    "ponto": "Ilha do Gambá",
-    "estado": "es",
-    "latitude": -20.8382491,
-    "longitude": -40.7230627
-  },
-  {
-    "cidade": "Piúma ",
-    "ponto": "Praias: Central | Maria Neném |Pau Grande ",
-    "estado": "es",
-    "latitude": -20.8382491,
-    "longitude": -40.7230627
-  },
-  {
-    "cidade": "Piúma ",
-    "ponto": "Rio Novo ",
-    "estado": "es",
-    "latitude": -20.8382491,
-    "longitude": -40.7230627
-  },
-  {
-    "cidade": "Piúma ",
-    "ponto": "Vale do Orobó ",
-    "estado": "es",
-    "latitude": -20.8382491,
-    "longitude": -40.7230627
-  }
-];
+  console.log("array: ", array[0])
+
+  return array.sort((a, b) => {
+      const localA = a.ponto.toLowerCase();
+      const localB = b.ponto.toLowerCase();
+      if (localA < localB) {
+          return -1;
+      }
+      if (localA > localB) {
+          return 1;
+      }
+      return 0;
+  });
+}

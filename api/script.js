@@ -90,12 +90,12 @@ function displayLocationInfo(place) {
 
   tabContent.innerHTML = `
       <div class="tab-pane active" id="info">
-          <h3>Informações</h3>
-          <p>Nome: ${place.name}</p>
-          <p>Endereço: ${place.formatted_address}</p>
-          <p>Telefone: ${place.formatted_phone_number || 'N/A'}</p>
-          <p>Rating: ${place.rating || 'N/A'}</p>
-          <p>Website: ${place.website ? `<a href="${place.website}" target="_blank">${place.website}</a>` : 'N/A'}</p>
+          <h3><b>Informações</b></h3>
+          <p><b>Nome:</b> ${place.name}</p>
+          <p><b>Endereço:</b> ${place.formatted_address}</p>
+          <p><b>Telefone:</b> ${place.formatted_phone_number || 'N/A'}</p>
+          <p><b>Rating:</b> ${place.rating || 'N/A'}</p>
+          <p><b>Website:</b> ${place.website ? `<a href="${place.website}" target="_blank">${place.website}</a>` : 'N/A'}</p>
       </div>
       <div class="tab-pane" id="photos">
           <h3>Fotos</h3>
@@ -111,6 +111,20 @@ function displayLocationInfo(place) {
       <button class="tab-button active" onclick="changeTab('info')">Informações</button>
       <button class="tab-button" onclick="changeTab('photos')">Fotos</button>
       <button class="tab-button" onclick="changeTab('reviews')">Avaliações</button>
+  `;
+}
+
+function displayCustomLocationInfo(place) {
+  const tabContent = document.getElementById('tab-content');
+  const tabs = document.getElementById('tabs');
+  tabs.innerHTML = '';
+  tabContent.innerHTML = `
+      <div class="tab-pane active" id="info">
+          <h3><b>Informações</b></h3>`
+  tabContent.innerHTML += place.ponto ? `<p><b>Nome:</b> ${place.ponto}</p>` : '';
+  tabContent.innerHTML += place.cidade ? `<p><b>Cidade:</b> ${place.cidade}</p>` : '';
+  tabContent.innerHTML += `<p><b>País:</b> ${place.pais}</p>
+      </div>
   `;
 }
 
@@ -171,10 +185,10 @@ async function initMap() {
           elementType: "labels",
           stylers: [{ visibility: "off" }],
         },
-        {
-          featureType: "landscape",
-          stylers: [{ visibility: "off" }],
-        },
+        // {
+        //   featureType: "landscape",
+        //   stylers: [{ visibility: "off" }],
+        // },
       ],
       mapTypeId: "roadmap",
       tilt: 45,
@@ -243,7 +257,7 @@ async function initMap() {
         });
 
         marcadorES.addListener("click", () => {
-          displayLocationInfo({ cidade: "Espírito Santo", pais: "Brasil" });
+          displayCustomLocationInfo({ ponto: 'Espírito Santo', pais: "Brasil" });
         });
       } else if (zoomLevel > 7 && zoomLevel <= 12) {
         for (const local of marcadoresPontosAncoras) {

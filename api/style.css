@@ -1,63 +1,73 @@
 /* Always set the map height explicitly to define the size of the div element
 * that contains the map. */
 #map {
-  width: calc(100% - 300px);  /* Ocupa o espaço restante após a barra lateral */
+  width: calc(100% - 300px);
+  /* Ocupa o espaço restante após a barra lateral */
   height: 100%;
+  flex-grow: 1;
 }
 
 /* Optional: Makes the sample page fill the window. */
-html, body {
+html,
+body {
   height: 100%;
   margin: 0;
   padding: 0;
 }
 
 #map-container {
-  display: flex;       /* Alinha o mapa e a barra lateral lado a lado */
-  height: 100%;        /* Garante que o container ocupe toda a altura da janela */
-  width: 100%;        /* Garante que o container ocupe toda a largura da janela */
+  display: flex;
+  /* Alinha o mapa e a barra lateral lado a lado */
+  height: 100%;
+  /* Garante que o container ocupe toda a altura da janela */
+  width: 100%;
+  /* Garante que o container ocupe toda a largura da janela */
 }
 
 #sidebar {
-  width: 300px;      /* Largura fixa da barra lateral */
+  width: 300px;
+  /* Largura fixa da barra lateral */
   background-color: #f5f5f5;
   padding: 20px;
-  border-right: 1px solid #ddd; 
-  font-family: 'Roboto', sans-serif; 
-  overflow-y: auto; /* Adiciona barra de rolagem se o conteúdo for muito longo */
+  border-right: 1px solid #ddd;
+  font-family: 'Roboto', sans-serif;
+  overflow-y: auto;
+  /* Adiciona barra de rolagem se o conteúdo for muito longo */
 }
 
 #sidebar h2 {
   font-size: 1.2em;
   margin-bottom: 15px;
-  color: #333; 
+  color: #333;
 }
 
 /* Estilização das Abas */
 #tabs {
-  display: flex; 
+  display: flex;
   margin-bottom: 10px;
 }
 
 .tab-button {
-  background-color: #fff; 
+  background-color: #fff;
   border: none;
   padding: 8px 12px;
   cursor: pointer;
-  font-family: 'Roboto', sans-serif; 
-  border-radius: 5px 5px 0 0; /* Borda arredondada apenas no topo */
-  margin-right: 5px; 
+  font-family: 'Roboto', sans-serif;
+  border-radius: 5px 5px 0 0;
+  /* Borda arredondada apenas no topo */
+  margin-right: 5px;
 }
 
 .tab-button.active {
-  background-color: #e0e0e0; 
+  background-color: #e0e0e0;
 }
 
 /* Estilização do Conteúdo das Abas */
 #tab-content {
   background-color: #fff;
   padding: 15px;
-  border-radius: 0 5px 5px 5px; /* Borda arredondada apenas na base */
+  border-radius: 0 5px 5px 5px;
+  /* Borda arredondada apenas na base */
 }
 
 .tab-pane h3 {
@@ -67,7 +77,7 @@ html, body {
 }
 
 .tab-pane p {
-  line-height: 1.5; 
+  line-height: 1.5;
   margin-bottom: 5px;
 }
 
@@ -76,7 +86,7 @@ html, body {
   max-width: 100%;
   height: auto;
   margin-bottom: 10px;
-  border-radius: 5px; 
+  border-radius: 5px;
 }
 
 /* Estilos para a label do marcador (removi comentários) */
@@ -88,5 +98,22 @@ html, body {
   font-weight: bold;
   padding: 4px 8px;
   border-radius: 4px;
-  pointer-events: none; /* Impede que a label interfira com o clique no marcador */
+  pointer-events: none;
+  /* Impede que a label interfira com o clique no marcador */
+}
+
+#filters {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 10px;
+  background-color: #fff;
+  border-bottom: 1px solid #ccc;
+}
+
+select {
+  margin-right: 10px;
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
 }

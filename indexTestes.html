@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Demarcar o Estado do Espírito Santo</title>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAHhb1kPzpi0_AjG9zLW1_AQkZpi30PCqA&callback=initMap"
+    async defer></script>
+  <style>
+    #map {
+      height: 100%;
+    }
+
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="map"></div>
+  <script>
+    let map;
+
+    function initMap() {
+      // Inicializa o mapa centrado no estado do Espírito Santo
+      map = new google.maps.Map(document.getElementById('map'), {
+        center: { lat: -19.1834, lng: -40.3089 },
+        zoom: 7
+      });
+
+      // // URL do arquivo GeoJSON do Espírito Santo
+      const esBoundaryUrl = './br_es.json';
+
+      // Carrega e exibe os dados GeoJSON
+      map.data.loadGeoJson(esBoundaryUrl);
+
+      // Define o estilo para a fronteira
+      map.data.setStyle({
+          fillColor: 'blue',
+          fillOpacity: 0,
+          strokeColor: 'blue',
+          strokeWeight: 3
+      });
+    }
+
+    // Substitua 'YOUR_API_KEY' pela sua chave da API do Google Maps.
+    // Substitua 'URL_DO_SEU_GEOJSON_DO_ES' pela URL correta do GeoJSON do Espírito Santo.
+
+    window.initMap = initMap;
+  </script>
+</body>
+
+</html>

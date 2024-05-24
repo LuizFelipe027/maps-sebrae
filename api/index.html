@@ -3,22 +3,50 @@
 <head>
   <title>ProjetoMaps</title>
   <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
-  <script
-    src="https://cdn.rawgit.com/googlemaps/v3-utility-library/master/markerwithlabel/src/markerwithlabel.js"></script>
-  <link rel="stylesheet" type="text/css" href="./style.css" />
+  <script src="https://cdn.rawgit.com/googlemaps/v3-utility-library/master/markerwithlabel/src/markerwithlabel.js"></script>
+  <!-- <link rel="stylesheet" type="text/css" href="./style.css" /> -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
   <script type="module" src="./script.js"></script>
 </head>
-<body>
-  <div id="map-container">
-    <div id="sidebar">
-      <h2>Informações do Local</h2>
-      <div id="tabs"> </div>
-      <div id="tab-content"> </div>
+<body class="h-screen m-0 p-0 font-roboto">
+  <div id="map-container" class="flex h-full w-full">
+    <div id="sidebar" class="w-72 bg-gray-200 p-5 border-r border-gray-300 overflow-y-auto">
+      <h2 class="text-lg mb-4 text-gray-800">Informações do Local</h2>
+      <div id="tabs" class="flex mb-2"></div>
+      <div id="tab-content" class="bg-white p-4 rounded-b-lg"></div>
     </div>
-    <div id="map"></div>
+    
+    <div class="flex flex-col flex-grow w-full">
+      <div id="filters" class="flex flex-row justify-around items-center p-2 bg-white border-b border-gray-300 w-full">
+        <select id="regioes-select" class="mr-2 p-1 border border-gray-300 rounded-md">
+          <option value="no_selected">Selecionar Camada</option>
+          <option value="caparao">Caparaó</option>
+          <option value="central">Central</option>
+          <option value="metropolitana">Metropolitana</option>
+          <option value="norte">Norte</option>
+          <option value="serrana">Serrana</option>
+          <option value="sul">Sul</option>
+        </select>
+        <select id="municipios-select" class="mr-2 p-1 border border-gray-300 rounded-md">
+          <option value="no_selected">Selecionar Município</option>
+          <!-- Adicione aqui a lista de todos os municípios do ES -->
+        </select>
+        <select id="atrativos-select" class="mr-2 p-1 border border-gray-300 rounded-md">
+          <option value="no_selected">Selecionar Atrativo</option>
+          <option value="ecoturismo">Ecoturismo e Aventura</option>
+          <option value="praia">Sol e Praia</option>
+          <option value="historico">Histórico Cultural</option>
+          <option value="religioso">Religioso</option>
+          <option value="gastronomia">Gastronomia</option>
+          <option value="eventos">Eventos regionais</option>
+        </select>
+      </div>
+
+      <div id="map" class="flex-row h-full w-full bg-blue-200"></div>
+    </div>
   </div>
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAHhb1kPzpi0_AjG9zLW1_AQkZpi30PCqA&libraries=places&callback=initMap"
     defer></script>

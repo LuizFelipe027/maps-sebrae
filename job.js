@@ -1,16 +1,18 @@
 async function lerJson() {
   const fs = require('fs');
+  const pathFileRead = "./br_es.json"
+  const pathFileWrite = "./br_es.json"
 
   // Leitura do arquivo JSON
-  const jsonData = fs.readFileSync('./Atrativos Geral.json', 'utf8');
+  const jsonData = fs.readFileSync(pathFileRead, 'utf8');
   // Parse do JSON para objeto JavaScript
   const data = JSON.parse(jsonData);
-  await findLatLng(data.pontos);
+  // await findLatLng(data.pontos);
   // Convertendo objeto JavaScript para JSON
   const newData = JSON.stringify(data, null, 2);
 
   // Escrita dos dados editados de volta para o arquivo JSON
-  fs.writeFileSync('./Atrativos Geral.json', newData, 'utf8');
+  fs.writeFileSync(pathFileWrite, newData, 'utf8');
 
 }
 lerJson()

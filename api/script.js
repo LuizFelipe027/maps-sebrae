@@ -10,20 +10,81 @@ let marcadorPersonalizadoPontoAncora;
 let marcadorPersonalizadoPontos;
 let dadosPlanilha;
 
+function demarcarFronteiraES() {
+  // // URL do arquivo GeoJSON do Espírito Santo
+  const esBoundaryUrl = '../br_es.json';
+  // Carrega e exibe os dados GeoJSON
+  map.data.loadGeoJson(esBoundaryUrl);
+  // Define o estilo para a fronteira
+  map.data.setStyle({
+    fillColor: 'blue',
+    fillOpacity: 0,
+    strokeColor: 'blue',
+    strokeWeight: 3
+  });
+}
+
+async function criarMarcadoresPersonalizados() {
+
+
+  for (const local of marcadoresPontosAncoras) {
+    let pathIconAncora = '../assets/google-maps.png';
+    let iconPath = `../assets/icons-municipios/${removeCharacterAndSpace(local.cidade)}.png`;
+    if (await fileExists(iconPath)) {
+      pathIconAncora = iconPath;
+    }
+
+    local.iconMarcadorAncora = new google.maps.MarkerImage(
+      pathIconAncora,
+      new google.maps.Size(48, 48),
+      new google.maps.Point(0, 0),
+      new google.maps.Point(24, 48),
+      new google.maps.Size(48, 48)
+    );
+  }
+
+  marcadorPersonalizadoPontos = new google.maps.MarkerImage(
+    '../assets/pin.png',
+    new google.maps.Size(24, 32),
+    new google.maps.Point(0, 0),
+    new google.maps.Point(12, 32),
+    new google.maps.Size(24, 32)
+  );
+}
+
+function fileExists(url) {
+  return new Promise((resolve, reject) => {
+    var http = new XMLHttpRequest();
+    http.open('HEAD', url, true);
+    http.onload = function () {
+      if (http.status == 200) {
+        resolve(true);
+      } else {
+        resolve(false);
+      }
+    };
+    http.onerror = function () {
+      resolve(false);
+    };
+    http.send();
+  });
+}
+
 function markAnchorPoints() {
   for (const local of marcadoresPontosAncoras) {
     const latLng = new google.maps.LatLng(local.latitude, local.longitude);
     const marcador = new google.maps.Marker({
       position: latLng,
       map: map,
-      icon: marcadorPersonalizadoPontoAncora,
+      // icon: marcadorPersonalizadoPontoAncora,
+      icon: local.iconMarcadorAncora,
     });
 
     marcador.addListener("click", () => {
       if (local.place_id) {
         getPlaceDetails(local);
       } else {
-        console.error('No place_id for location:', local);
+        displayCustomLocationInfo(local);
       }
     });
 
@@ -186,7 +247,7 @@ async function getDataFromSheet() {
 }
 
 async function initMap() {
-  getDataFromSheet().then(values => {
+  getDataFromSheet().then(async values => {
     dadosPlanilha = values;
     montaArrayDeMunicipos();
     marcadoresPontosAncoras = values.filter(m => m.ancora.toLowerCase() === 'sim');
@@ -227,24 +288,9 @@ async function initMap() {
       }
     });
 
-    marcadorPersonalizadoPontoAncora = new google.maps.MarkerImage(
-      '../assets/google-maps.png',
-      new google.maps.Size(48, 48),
-      new google.maps.Point(0, 0),
-      new google.maps.Point(24, 48),
-      new google.maps.Size(48, 48)
-    );
-
-    marcadorPersonalizadoPontos = new google.maps.MarkerImage(
-      '../assets/pin.png',
-      new google.maps.Size(24, 32),
-      new google.maps.Point(0, 0),
-      new google.maps.Point(12, 32),
-      new google.maps.Size(24, 32)
-    );
-
+    await criarMarcadoresPersonalizados()
     markAnchorPoints()
-    
+
     map.addListener('zoom_changed', function () {
       const municipioFiltrado = document.getElementById('municipios-select').value;
       if (municipioFiltrado === 'no_selected') {
@@ -285,20 +331,6 @@ async function initMap() {
         }
       }
     });
-  });
-}
-
-function demarcarFronteiraES() {
-  // // URL do arquivo GeoJSON do Espírito Santo
-  const esBoundaryUrl = '../br_es.json';
-  // Carrega e exibe os dados GeoJSON
-  map.data.loadGeoJson(esBoundaryUrl);
-  // Define o estilo para a fronteira
-  map.data.setStyle({
-    fillColor: 'blue',
-    fillOpacity: 0,
-    strokeColor: 'blue',
-    strokeWeight: 3
   });
 }
 

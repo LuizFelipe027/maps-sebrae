@@ -1,7 +1,7 @@
 async function lerJson() {
   const fs = require('fs');
-  const pathFileRead = "./br_es.json"
-  const pathFileWrite = "./br_es.json"
+  const pathFileRead = "./br_states.json"
+  const pathFileWrite = "./br_states.json"
 
   // Leitura do arquivo JSON
   const jsonData = fs.readFileSync(pathFileRead, 'utf8');

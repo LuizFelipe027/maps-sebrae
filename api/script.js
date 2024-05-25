@@ -1,14 +1,24 @@
 let marcadoresPontos = [];
-let marcadoresPontosAncoras = [];
 let marcadoresFiltrados = [];
 
 const apikey = "AIzaSyAHhb1kPzpi0_AjG9zLW1_AQkZpi30PCqA";
 let map;
 let service;
 
-let marcadorPersonalizadoPontoAncora;
-let marcadorPersonalizadoPontos;
 let dadosPlanilha;
+
+function demarcarFronteiraBrasil() {
+  const brasilBoundaryLayer = new google.maps.Data();
+  const esBoundaryUrl = '../br_states.json';
+  brasilBoundaryLayer.loadGeoJson(esBoundaryUrl);
+  brasilBoundaryLayer.setStyle({
+    fillColor: 'gray',
+    fillOpacity: 0.6,
+    strokeColor: 'gray',
+    strokeWeight: 1
+  });
+  brasilBoundaryLayer.setMap(map);
+}
 
 function demarcarFronteiraES() {
   // // URL do arquivo GeoJSON do Espírito Santo
@@ -20,36 +30,37 @@ function demarcarFronteiraES() {
     fillColor: 'blue',
     fillOpacity: 0,
     strokeColor: 'blue',
-    strokeWeight: 3
+    strokeWeight: 1
   });
 }
 
 async function criarMarcadoresPersonalizados() {
+  for (const local of dadosPlanilha) {
+    if (local.ancora.toLowerCase() === 'sim') {
+      let pathIconAncora = '../assets/google-maps.png';
+      let iconPath = `../assets/icons-municipios/${removeCharacterAndSpace(local.cidade)}.png`;
+      if (await fileExists(iconPath)) {
+        pathIconAncora = iconPath;
+      }
 
-
-  for (const local of marcadoresPontosAncoras) {
-    let pathIconAncora = '../assets/google-maps.png';
-    let iconPath = `../assets/icons-municipios/${removeCharacterAndSpace(local.cidade)}.png`;
-    if (await fileExists(iconPath)) {
-      pathIconAncora = iconPath;
+      local.icon = new google.maps.MarkerImage(
+        pathIconAncora,
+        new google.maps.Size(48, 48),
+        new google.maps.Point(0, 0),
+        new google.maps.Point(24, 48),
+        new google.maps.Size(48, 48)
+      );
+    } else {
+      local.icon = new google.maps.MarkerImage(
+        '../assets/pin.png',
+        new google.maps.Size(24, 32),
+        new google.maps.Point(0, 0),
+        new google.maps.Point(12, 32),
+        new google.maps.Size(24, 32)
+      );
     }
-
-    local.iconMarcadorAncora = new google.maps.MarkerImage(
-      pathIconAncora,
-      new google.maps.Size(48, 48),
-      new google.maps.Point(0, 0),
-      new google.maps.Point(24, 48),
-      new google.maps.Size(48, 48)
-    );
   }
 
-  marcadorPersonalizadoPontos = new google.maps.MarkerImage(
-    '../assets/pin.png',
-    new google.maps.Size(24, 32),
-    new google.maps.Point(0, 0),
-    new google.maps.Point(12, 32),
-    new google.maps.Size(24, 32)
-  );
 }
 
 function fileExists(url) {
@@ -71,24 +82,26 @@ function fileExists(url) {
 }
 
 function markAnchorPoints() {
-  for (const local of marcadoresPontosAncoras) {
-    const latLng = new google.maps.LatLng(local.latitude, local.longitude);
-    const marcador = new google.maps.Marker({
-      position: latLng,
-      map: map,
-      // icon: marcadorPersonalizadoPontoAncora,
-      icon: local.iconMarcadorAncora,
-    });
+  for (const local of dadosPlanilha) {
+    if (local.ancora.toLowerCase() === 'sim') {
 
-    marcador.addListener("click", () => {
-      if (local.place_id) {
-        getPlaceDetails(local);
-      } else {
-        displayCustomLocationInfo(local);
-      }
-    });
+      const latLng = new google.maps.LatLng(local.latitude, local.longitude);
+      const marcador = new google.maps.Marker({
+        position: latLng,
+        map: map,
+        icon: local.icon,
+      });
 
-    local.marcador = marcador;
+      marcador.addListener("click", () => {
+        if (local.place_id) {
+          getPlaceDetails(local);
+        } else {
+          displayCustomLocationInfo(local);
+        }
+      });
+
+      local.marcador = marcador;
+    }
   }
 }
 
@@ -99,13 +112,16 @@ async function removeMarkers(zoomLevel) {
   marcadoresFiltrados = [];
 
   if (zoomLevel <= 7) {
-    for (const local of marcadoresPontosAncoras) {
-      local.marcador.setMap(null);
+    for (const local of dadosPlanilha) {
+      if (local.ancora.toLowerCase() === 'sim') {
+
+        local.marcador.setMap(null);
+      }
     }
   }
 
-  for (const local of marcadoresPontos) {
-    if (local.marcador) {
+  for (const local of dadosPlanilha) {
+    if (local.marcador && (!local.ancora || local?.ancora.toLowerCase() !== 'sim')) {
       local.marcador.setMap(null);
     }
   }
@@ -172,7 +188,7 @@ function changeTab(tabId) {
 
 function getPlaceDetails(local) {
   if (!local.place_id) {
-    console.error('Invalid placeId:', local.place_id);
+    //console.error('Invalid placeId:', local.place_id);
     return;
   }
 
@@ -185,7 +201,7 @@ function getPlaceDetails(local) {
     if (status === google.maps.places.PlacesServiceStatus.OK) {
       displayLocationInfo({ ...place, ...local });
     } else {
-      console.error('Place details request failed due to ' + status);
+      //console.error('Place details request failed due to ' + status);
     }
   });
 }
@@ -198,7 +214,7 @@ async function getPlaceId(latitude, longitude) {
     const placeId = data.results[0].place_id;
     return placeId;
   } else {
-    console.error('Erro ao obter place_id:', data.error_message);
+    //console.error('Erro ao obter place_id:', data.error_message);
     return null;
   }
 }
@@ -241,7 +257,7 @@ async function getDataFromSheet() {
 
     return objeto;
   } catch (error) {
-    console.error('Erro ao buscar dados da planilha:', error);
+    //console.error('Erro ao buscar dados da planilha:', error);
     return [];
   }
 }
@@ -250,8 +266,7 @@ async function initMap() {
   getDataFromSheet().then(async values => {
     dadosPlanilha = values;
     montaArrayDeMunicipos();
-    marcadoresPontosAncoras = values.filter(m => m.ancora.toLowerCase() === 'sim');
-    marcadoresPontos = values.filter(m => !m.ancora && !(marcadoresPontosAncoras.find(f => f.latitude === m.latitude && f.longitude === m.longitude)));
+    marcadoresPontos = values.filter(m => !m.ancora && !(dadosPlanilha.find(f => f.ancora.toLowerCase() === 'sim' && f.latitude === m.latitude && f.longitude === m.longitude)));
 
     let isSatellite = false;
 
@@ -265,15 +280,16 @@ async function initMap() {
           elementType: "labels",
           stylers: [{ visibility: "off" }],
         },
-        {
-          featureType: "landscape",
-          stylers: [{ visibility: "off" }],
-        },
+        // {
+        //   featureType: "landscape",
+        //   stylers: [{ visibility: "off" }],
+        // },
       ],
       mapTypeId: "roadmap",
       tilt: 45,
     });
-    demarcarFronteiraES()
+    demarcarFronteiraBrasil()
+    // demarcarFronteiraES()
 
     service = new google.maps.places.PlacesService(map);
 
@@ -291,42 +307,65 @@ async function initMap() {
     await criarMarcadoresPersonalizados()
     markAnchorPoints()
 
+    // Define o nível de zoom inicial
+    let previousZoomLevel = null;
+    previousZoomLevel = map.getZoom();
     map.addListener('zoom_changed', function () {
       const municipioFiltrado = document.getElementById('municipios-select').value;
       if (municipioFiltrado === 'no_selected') {
-        var zoomLevel = map.getZoom();
 
-        removeMarkers(zoomLevel);
+        const currentZoomLevel = map.getZoom();
+        // Verifica se o zoom mudou para um nível que requer atualização
+        if ((previousZoomLevel <= 7 && currentZoomLevel > 7) ||
+          (previousZoomLevel > 7 && previousZoomLevel <= 12 && (currentZoomLevel <= 7 || currentZoomLevel > 12)) ||
+          (previousZoomLevel > 12 && currentZoomLevel <= 12)) {
 
-        if (zoomLevel <= 7) {
-          const latLngES = new google.maps.LatLng(-20.3155, -40.3128);
-          const marcadorES = new google.maps.Marker({
-            position: latLngES,
-            map: map,
-            icon: marcadorPersonalizadoPontoAncora,
-          });
+          // Armazena o novo nível de zoom
+          previousZoomLevel = currentZoomLevel;
 
-          marcadorES.addListener("click", () => {
-            displayCustomLocationInfo({ ponto: 'Espírito Santo', pais: "Brasil" });
-          });
-        } else if (zoomLevel > 7 && zoomLevel <= 12) {
-          for (const local of marcadoresPontosAncoras) {
-            local.marcador.setMap(map);
-          }
-        } else {
-          for (const local of marcadoresPontos) {
-            const latLng = new google.maps.LatLng(local.latitude, local.longitude);
-            const marcador = new google.maps.Marker({
-              position: latLng,
+          // Remove os marcadores existentes
+          removeMarkers(currentZoomLevel);
+
+          // Adiciona os novos marcadores conforme o nível de zoom
+          if (currentZoomLevel <= 7) {
+            const latLngES = new google.maps.LatLng(-20.3155, -40.3128);
+            const marcadorES = new google.maps.Marker({
+              position: latLngES,
               map: map,
-              icon: marcadorPersonalizadoPontos,
+              icon: new google.maps.MarkerImage(
+                '../assets/google-maps.png',
+                new google.maps.Size(48, 48),
+                new google.maps.Point(0, 0),
+                new google.maps.Point(24, 48),
+                new google.maps.Size(48, 48)
+              ),
             });
 
-            marcador.addListener("click", () => {
-              displayCustomLocationInfo(local);
+            marcadorES.addListener("click", () => {
+              displayCustomLocationInfo({ ponto: 'Espírito Santo', pais: "Brasil" });
             });
 
-            local.marcador = marcador;
+          } else if (currentZoomLevel > 7 && currentZoomLevel <= 12) {
+            for (const local of dadosPlanilha) {
+              if (local.ancora.toLowerCase() === 'sim') {
+                local.marcador.setMap(map);
+              }
+            }
+          } else {
+            for (const local of marcadoresPontos) {
+              const latLng = new google.maps.LatLng(local.latitude, local.longitude);
+              const marcador = new google.maps.Marker({
+                position: latLng,
+                map: map,
+                icon: local.icon,
+              });
+
+              marcador.addListener("click", () => {
+                displayCustomLocationInfo(local);
+              });
+
+              local.marcador = marcador;
+            }
           }
         }
       }
@@ -371,7 +410,7 @@ async function updateMapByMunicipio() {
     const marcador = new google.maps.Marker({
       position: latLng,
       map: map,
-      icon: local.ancora.toLowerCase() === 'sim' ? marcadorPersonalizadoPontoAncora : marcadorPersonalizadoPontos
+      icon: local.icon
     });
 
     marcador.addListener("click", () => {
@@ -385,7 +424,6 @@ async function updateMapByMunicipio() {
     local.marcador = marcador;
   }
 }
-
 
 document.getElementById('regioes-select').addEventListener('change', updateMapByCamada);
 const dadosCorRegioes = [
@@ -402,7 +440,7 @@ function updateMapByCamada() {
   });
 
   const regiaoSelecionada = document.getElementById('regioes-select').value;
-  if (regiaoSelecionada === 'no_selected') return demarcarFronteiraES()
+  if (regiaoSelecionada === 'no_selected') return
 
   const municipiosPorRegiao = buscaRegioes(regiaoSelecionada);
   if (municipiosPorRegiao) {
@@ -434,7 +472,7 @@ function updateMapByCamada() {
         });
       })
       .catch(error => {
-        console.error('Erro ao buscar os dados: ', error);
+        //console.error('Erro ao buscar os dados: ', error);
       });
   }
 }

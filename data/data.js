@@ -7122,6 +7122,10 @@ let marcadoresCidade = [
 ];
 
 const api_key = 'AIzaSyAHhb1kPzpi0_AjG9zLW1_AQkZpi30PCqA'
+const sheetId = '1fAa7t3hpYsr9km0RCJhpCW2nlgarcEIWNs6j3ND6Jjo';
+const range = 'Pontos%20Turísticos!1:1000';
+
+const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apikey}`;
 
 module.exports = {
   marcadoresPontos,

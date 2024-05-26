@@ -34,7 +34,21 @@ function demarcarFronteiraES() {
   });
 }
 
+function getIconSize(zoomLevel) {
+  const maxIconSize = 48;
+  const minIconSize = 24; // Metade do tamanho máximo
+  if (zoomLevel <= 9) {
+    return minIconSize;
+  } else {
+    // const scale = (zoomLevel - 7) / (14 - 7); // Ajuste os valores de zoom conforme necessário
+    // const iconSize = maxIconSize - ((maxIconSize - minIconSize) * scale);
+    // return Math.max(minIconSize, Math.min(maxIconSize, iconSize));
+    return maxIconSize;
+  }
+}
+
 async function criarMarcadoresPersonalizados() {
+  const currentZoomLevel = map.getZoom();
   for (const local of dadosPlanilha) {
     if (local.ancora.toLowerCase() === 'sim') {
       let pathIconAncora = '../assets/google-maps.png';
@@ -43,12 +57,13 @@ async function criarMarcadoresPersonalizados() {
         pathIconAncora = iconPath;
       }
 
+      const iconSize = getIconSize(currentZoomLevel);
       local.icon = new google.maps.MarkerImage(
         pathIconAncora,
-        new google.maps.Size(48, 48),
+        new google.maps.Size(iconSize, iconSize),
         new google.maps.Point(0, 0),
-        new google.maps.Point(24, 48),
-        new google.maps.Size(48, 48)
+        new google.maps.Point(iconSize / 2, iconSize),
+        new google.maps.Size(iconSize, iconSize)
       );
     } else {
       local.icon = new google.maps.MarkerImage(
@@ -60,7 +75,6 @@ async function criarMarcadoresPersonalizados() {
       );
     }
   }
-
 }
 
 function fileExists(url) {
@@ -313,13 +327,12 @@ async function initMap() {
     map.addListener('zoom_changed', function () {
       const municipioFiltrado = document.getElementById('municipios-select').value;
       if (municipioFiltrado === 'no_selected') {
-
         const currentZoomLevel = map.getZoom();
         // Verifica se o zoom mudou para um nível que requer atualização
-        if ((previousZoomLevel <= 7 && currentZoomLevel > 7) ||
-          (previousZoomLevel > 7 && previousZoomLevel <= 12 && (currentZoomLevel <= 7 || currentZoomLevel > 12)) ||
-          (previousZoomLevel > 12 && currentZoomLevel <= 12)) {
-
+        // if ((previousZoomLevel <= 7 && currentZoomLevel > 7) ||
+        //     (previousZoomLevel > 7 && previousZoomLevel <= 12 && (currentZoomLevel <= 7 || currentZoomLevel > 12)) ||
+        //     (previousZoomLevel > 12 && currentZoomLevel <= 12)) {
+    
           // Armazena o novo nível de zoom
           previousZoomLevel = currentZoomLevel;
 
@@ -348,7 +361,15 @@ async function initMap() {
           } else if (currentZoomLevel > 7 && currentZoomLevel <= 12) {
             for (const local of dadosPlanilha) {
               if (local.ancora.toLowerCase() === 'sim') {
+                const iconSize = getIconSize(currentZoomLevel);
                 local.marcador.setMap(map);
+                local.marcador.setIcon(new google.maps.MarkerImage(
+                  local.icon.url,
+                  new google.maps.Size(iconSize, iconSize),
+                  new google.maps.Point(0, 0),
+                  new google.maps.Point(iconSize / 2, iconSize),
+                  new google.maps.Size(iconSize, iconSize)
+                ));
               }
             }
           } else {
@@ -367,7 +388,7 @@ async function initMap() {
               local.marcador = marcador;
             }
           }
-        }
+        // }
       }
     });
   });

@@ -5,6 +5,8 @@ const apikey = "AIzaSyAHhb1kPzpi0_AjG9zLW1_AQkZpi30PCqA";
 let map;
 let service;
 
+let marcadorES = null;
+
 let dadosPlanilha;
 
 function demarcarFronteiraBrasil() {
@@ -132,6 +134,8 @@ async function removeMarkers(zoomLevel) {
         local.marcador.setMap(null);
       }
     }
+  } else {
+    marcadorES.setMap(null);
   }
 
   for (const local of dadosPlanilha) {
@@ -280,6 +284,7 @@ async function initMap() {
   getDataFromSheet().then(async values => {
     dadosPlanilha = values;
     montaArrayDeMunicipos();
+    montaArrayDeSegmentos();
     marcadoresPontos = values.filter(m => !m.ancora && !(dadosPlanilha.find(f => f.ancora.toLowerCase() === 'sim' && f.latitude === m.latitude && f.longitude === m.longitude)));
 
     let isSatellite = false;
@@ -332,62 +337,62 @@ async function initMap() {
         // if ((previousZoomLevel <= 7 && currentZoomLevel > 7) ||
         //     (previousZoomLevel > 7 && previousZoomLevel <= 12 && (currentZoomLevel <= 7 || currentZoomLevel > 12)) ||
         //     (previousZoomLevel > 12 && currentZoomLevel <= 12)) {
-    
-          // Armazena o novo nível de zoom
-          previousZoomLevel = currentZoomLevel;
 
-          // Remove os marcadores existentes
-          removeMarkers(currentZoomLevel);
+        // Armazena o novo nível de zoom
+        previousZoomLevel = currentZoomLevel;
 
-          // Adiciona os novos marcadores conforme o nível de zoom
-          if (currentZoomLevel <= 7) {
-            const latLngES = new google.maps.LatLng(-20.3155, -40.3128);
-            const marcadorES = new google.maps.Marker({
-              position: latLngES,
-              map: map,
-              icon: new google.maps.MarkerImage(
-                '../assets/google-maps.png',
-                new google.maps.Size(48, 48),
+        // Remove os marcadores existentes
+        removeMarkers(currentZoomLevel);
+
+        // Adiciona os novos marcadores conforme o nível de zoom
+        if (currentZoomLevel <= 7) {
+          const latLngES = new google.maps.LatLng(-20.3155, -40.3128);
+          marcadorES = new google.maps.Marker({
+            position: latLngES,
+            map: map,
+            icon: new google.maps.MarkerImage(
+              '../assets/google-maps.png',
+              new google.maps.Size(48, 48),
+              new google.maps.Point(0, 0),
+              new google.maps.Point(24, 48),
+              new google.maps.Size(48, 48)
+            ),
+          });
+
+          marcadorES.addListener("click", () => {
+            displayCustomLocationInfo({ ponto: 'Espírito Santo', pais: "Brasil" });
+          });
+
+        } else if (currentZoomLevel > 7 && currentZoomLevel <= 12) {
+          for (const local of dadosPlanilha) {
+            if (local.ancora.toLowerCase() === 'sim') {
+              const iconSize = getIconSize(currentZoomLevel);
+              local.marcador.setMap(map);
+              local.marcador.setIcon(new google.maps.MarkerImage(
+                local.icon.url,
+                new google.maps.Size(iconSize, iconSize),
                 new google.maps.Point(0, 0),
-                new google.maps.Point(24, 48),
-                new google.maps.Size(48, 48)
-              ),
-            });
-
-            marcadorES.addListener("click", () => {
-              displayCustomLocationInfo({ ponto: 'Espírito Santo', pais: "Brasil" });
-            });
-
-          } else if (currentZoomLevel > 7 && currentZoomLevel <= 12) {
-            for (const local of dadosPlanilha) {
-              if (local.ancora.toLowerCase() === 'sim') {
-                const iconSize = getIconSize(currentZoomLevel);
-                local.marcador.setMap(map);
-                local.marcador.setIcon(new google.maps.MarkerImage(
-                  local.icon.url,
-                  new google.maps.Size(iconSize, iconSize),
-                  new google.maps.Point(0, 0),
-                  new google.maps.Point(iconSize / 2, iconSize),
-                  new google.maps.Size(iconSize, iconSize)
-                ));
-              }
-            }
-          } else {
-            for (const local of marcadoresPontos) {
-              const latLng = new google.maps.LatLng(local.latitude, local.longitude);
-              const marcador = new google.maps.Marker({
-                position: latLng,
-                map: map,
-                icon: local.icon,
-              });
-
-              marcador.addListener("click", () => {
-                displayCustomLocationInfo(local);
-              });
-
-              local.marcador = marcador;
+                new google.maps.Point(iconSize / 2, iconSize),
+                new google.maps.Size(iconSize, iconSize)
+              ));
             }
           }
+        } else {
+          for (const local of marcadoresPontos) {
+            const latLng = new google.maps.LatLng(local.latitude, local.longitude);
+            const marcador = new google.maps.Marker({
+              position: latLng,
+              map: map,
+              icon: local.icon,
+            });
+
+            marcador.addListener("click", () => {
+              displayCustomLocationInfo(local);
+            });
+
+            local.marcador = marcador;
+          }
+        }
         // }
       }
     });
@@ -395,9 +400,56 @@ async function initMap() {
 }
 
 // Adicionar os eventos para os selects
-document.getElementById('atrativos-select').addEventListener('change', updateMapByAtrativos);
-function updateMapByAtrativos() {
+document.getElementById('segmentos-select').addEventListener('change', updateMapBySegmentos);
+function montaArrayDeSegmentos() {
+  console.log("dadosPlanilha: ", dadosPlanilha)
+  // document.addEventListener("DOMContentLoaded", function () {
+  const segmentosUnicos = [...new Set(dadosPlanilha.map(m => m.segmento))];
 
+  console.log("segmentosUnicos: ", segmentosUnicos)
+
+
+  const selectElement = document.getElementById('segmentos-select');
+  segmentosUnicos.forEach(segmento => {
+    if (segmento) {
+      const option = document.createElement('option');
+      option.value = removeCharacterAndSpace(segmento);
+      option.textContent = segmento;
+      selectElement.appendChild(option);
+    }
+  });
+  // });
+}
+async function updateMapBySegmentos() {
+  const segmentoSelecionado = document.getElementById('segmentos-select').value;
+  if (segmentoSelecionado === 'no_selected') {
+    await removeMarkers(0);
+    return markAnchorPoints();
+  }
+
+  await removeMarkers(0);
+  marcadoresFiltrados = dadosPlanilha.filter(local => {
+    return removeCharacterAndSpace(local.segmento) === segmentoSelecionado;
+  });
+
+  for (const local of marcadoresFiltrados) {
+    const latLng = new google.maps.LatLng(local.latitude, local.longitude);
+    const marcador = new google.maps.Marker({
+      position: latLng,
+      map: map,
+      icon: local.icon
+    });
+
+    marcador.addListener("click", () => {
+      if (local.place_id) {
+        getPlaceDetails(local);
+      } else {
+        displayCustomLocationInfo(local);
+      }
+    });
+
+    local.marcador = marcador;
+  }
 }
 
 document.getElementById('municipios-select').addEventListener('change', updateMapByMunicipio);
@@ -407,10 +459,12 @@ function montaArrayDeMunicipos() {
 
   const selectElement = document.getElementById('municipios-select');
   municipiosUnicos.forEach(municipio => {
-    const option = document.createElement('option');
-    option.value = removeCharacterAndSpace(municipio);
-    option.textContent = municipio;
-    selectElement.appendChild(option);
+    if (municipio) {
+      const option = document.createElement('option');
+      option.value = removeCharacterAndSpace(municipio);
+      option.textContent = municipio;
+      selectElement.appendChild(option);
+    }
   });
   // });
 }
@@ -515,7 +569,7 @@ function buscaRegioes(regiao) {
 }
 
 function removeCharacterAndSpace(str) {
-  return str.replace(/\s/g, '_').normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  return str?.replace(/\s/g, '_').normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 }
 
 window.initMap = initMap;

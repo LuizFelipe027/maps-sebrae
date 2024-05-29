@@ -1,13 +1,39 @@
 let marcadoresPontos = [];
 let marcadoresFiltrados = [];
+let dadosPlanilha;
 
 const apikey = "AIzaSyAHhb1kPzpi0_AjG9zLW1_AQkZpi30PCqA";
 let map;
 let service;
 
 let marcadorES = null;
+// Função para criar o marcador do Espírito Santo
+function criarMarcadorES() {
+  const latLngES = new google.maps.LatLng(-20.3155, -40.3128);
+  marcadorES = new google.maps.Marker({
+    position: latLngES,
+    map: map,
+    icon: new google.maps.MarkerImage(
+      '../assets/google-maps.png',
+      new google.maps.Size(48, 48),
+      new google.maps.Point(0, 0),
+      new google.maps.Point(24, 48),
+      new google.maps.Size(48, 48)
+    ),
+  });
 
-let dadosPlanilha;
+  marcadorES.addListener("click", () => {
+    displayCustomLocationInfo({ ponto: 'Espírito Santo', pais: "Brasil" });
+  });
+}
+
+// Função para remover o marcador do Espírito Santo
+function removerMarcadorES() {
+  if (marcadorES) {
+    marcadorES.setMap(null);
+    marcadorES = null;
+  }
+}
 
 function demarcarFronteiraBrasil() {
   const brasilBoundaryLayer = new google.maps.Data();
@@ -135,7 +161,7 @@ async function removeMarkers(zoomLevel) {
       }
     }
   } else {
-    marcadorES.setMap(null);
+    removerMarcadorES(); // Remover o marcador do Espírito Santo
   }
 
   for (const local of dadosPlanilha) {
@@ -289,9 +315,9 @@ async function initMap() {
 
     let isSatellite = false;
 
-    const latLng = new google.maps.LatLng(-20.322478, -40.338271);
+    const latLng = new google.maps.LatLng(-19.663280, -40.519634);
     map = new google.maps.Map(document.getElementById("map"), {
-      zoom: 10,
+      zoom: 8,
       center: latLng,
       styles: [
         {
@@ -331,7 +357,8 @@ async function initMap() {
     previousZoomLevel = map.getZoom();
     map.addListener('zoom_changed', function () {
       const municipioFiltrado = document.getElementById('municipios-select').value;
-      if (municipioFiltrado === 'no_selected') {
+      const segmentoFiltrado = document.getElementById('segmentos-select').value;
+      if (municipioFiltrado === 'no_selected' && segmentoFiltrado === 'no_selected') {
         const currentZoomLevel = map.getZoom();
         // Verifica se o zoom mudou para um nível que requer atualização
         // if ((previousZoomLevel <= 7 && currentZoomLevel > 7) ||
@@ -346,23 +373,7 @@ async function initMap() {
 
         // Adiciona os novos marcadores conforme o nível de zoom
         if (currentZoomLevel <= 7) {
-          const latLngES = new google.maps.LatLng(-20.3155, -40.3128);
-          marcadorES = new google.maps.Marker({
-            position: latLngES,
-            map: map,
-            icon: new google.maps.MarkerImage(
-              '../assets/google-maps.png',
-              new google.maps.Size(48, 48),
-              new google.maps.Point(0, 0),
-              new google.maps.Point(24, 48),
-              new google.maps.Size(48, 48)
-            ),
-          });
-
-          marcadorES.addListener("click", () => {
-            displayCustomLocationInfo({ ponto: 'Espírito Santo', pais: "Brasil" });
-          });
-
+          criarMarcadorES(); // Adicionar o marcador do Espírito Santo
         } else if (currentZoomLevel > 7 && currentZoomLevel <= 12) {
           for (const local of dadosPlanilha) {
             if (local.ancora.toLowerCase() === 'sim') {
@@ -402,13 +413,8 @@ async function initMap() {
 // Adicionar os eventos para os selects
 document.getElementById('segmentos-select').addEventListener('change', updateMapBySegmentos);
 function montaArrayDeSegmentos() {
-  console.log("dadosPlanilha: ", dadosPlanilha)
   // document.addEventListener("DOMContentLoaded", function () {
   const segmentosUnicos = [...new Set(dadosPlanilha.map(m => m.segmento))];
-
-  console.log("segmentosUnicos: ", segmentosUnicos)
-
-
   const selectElement = document.getElementById('segmentos-select');
   segmentosUnicos.forEach(segmento => {
     if (segmento) {
@@ -453,11 +459,32 @@ async function updateMapBySegmentos() {
 }
 
 document.getElementById('municipios-select').addEventListener('change', updateMapByMunicipio);
-function montaArrayDeMunicipos() {
+function montaArrayDeMunicipos(regiaoSelecionada) {
   // document.addEventListener("DOMContentLoaded", function () {
-  const municipiosUnicos = [...new Set(dadosPlanilha.map(m => m.cidade))];
+  let municipiosUnicos = [...new Set(dadosPlanilha.map(m => m.cidade))];
+
+  if (regiaoSelecionada) {
+    const municipiosPorRegional = new Set();
+    for (const local of dadosPlanilha) {
+      if (removeCharacterAndSpace(local.regional) === regiaoSelecionada) {
+        municipiosPorRegional.add(local.cidade);
+      }
+    }
+    municipiosUnicos = [...municipiosPorRegional];
+  }
 
   const selectElement = document.getElementById('municipios-select');
+  // Limpar opções existentes
+  while (selectElement.options.length > 0) {
+    selectElement.remove(0);
+  }
+
+  // Adicionar a opção "Selecione o Município"
+  const defaultOption = document.createElement("option");
+  defaultOption.value = "no_selected";
+  defaultOption.textContent = "Selecione o Município";
+  selectElement.appendChild(defaultOption);
+
   municipiosUnicos.forEach(municipio => {
     if (municipio) {
       const option = document.createElement('option');
@@ -480,7 +507,7 @@ async function updateMapByMunicipio() {
     return removeCharacterAndSpace(local.cidade) === municipioSelecionado;
   });
 
-  for (const local of marcadoresFiltrados) {
+  for (const local of (marcadoresFiltrados || [])) {
     const latLng = new google.maps.LatLng(local.latitude, local.longitude);
     const marcador = new google.maps.Marker({
       position: latLng,
@@ -515,7 +542,9 @@ function updateMapByCamada() {
   });
 
   const regiaoSelecionada = document.getElementById('regioes-select').value;
-  if (regiaoSelecionada === 'no_selected') return
+  if (regiaoSelecionada === 'no_selected') return montaArrayDeMunicipos();
+
+  montaArrayDeMunicipos(regiaoSelecionada);
 
   const municipiosPorRegiao = buscaRegioes(regiaoSelecionada);
   if (municipiosPorRegiao) {
@@ -549,6 +578,7 @@ function updateMapByCamada() {
       .catch(error => {
         //console.error('Erro ao buscar os dados: ', error);
       });
+    map.setZoom(8);
   }
 }
 

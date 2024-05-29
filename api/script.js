@@ -2,7 +2,7 @@ let marcadoresPontos = [];
 let marcadoresFiltrados = [];
 let dadosPlanilha;
 
-const apikey = "AIzaSyAHhb1kPzpi0_AjG9zLW1_AQkZpi30PCqA";
+const apikey = "AIzaSyDE8EhxgBC6_4Z64dTV7bZ-z6CY09KJ5DI";
 let map;
 let service;
 
@@ -407,6 +407,24 @@ async function initMap() {
         // }
       }
     });
+
+    // Cria um controle para cada select
+    const regioesControlDiv = document.createElement('div');
+    regioesControlDiv.innerHTML = document.getElementById('regioes-select').outerHTML; // Copia o HTML do select
+    regioesControlDiv.classList.add('filter-icon'); // Adiciona uma classe para estilização
+
+    const municipiosControlDiv = document.createElement('div');
+    municipiosControlDiv.innerHTML = document.getElementById('municipios-select').outerHTML;
+    municipiosControlDiv.classList.add('filter-icon');
+
+    const segmentosControlDiv = document.createElement('div');
+    segmentosControlDiv.innerHTML = document.getElementById('segmentos-select').outerHTML;
+    segmentosControlDiv.classList.add('filter-icon');
+
+    // Adiciona os controles ao mapa
+    map.controls[google.maps.ControlPosition.TOP_RIGHT].push(regioesControlDiv);
+    map.controls[google.maps.ControlPosition.TOP_RIGHT].push(municipiosControlDiv);
+    map.controls[google.maps.ControlPosition.TOP_RIGHT].push(segmentosControlDiv);
   });
 }
 

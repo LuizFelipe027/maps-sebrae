@@ -19,7 +19,7 @@ lerJson()
 
 async function findLatLng(arrLocais) {
   try {
-    const apikey = "AIzaSyAHhb1kPzpi0_AjG9zLW1_AQkZpi30PCqA";
+    const apikey = "AIzaSyDE8EhxgBC6_4Z64dTV7bZ-z6CY09KJ5DI";
     console.log("arrLocais: ", arrLocais.length);
     let i = 0;
 

@@ -10,21 +10,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
-
-  <!-- Select2 CSS -->
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
-
+  <script type="module" src="./script.js" defer></script>
   <style>
-    .select2-container--default .select2-selection--multiple .select2-selection__rendered {
-      max-height: 50px;
-      /* Ajuste conforme necessário */
-      overflow-y: auto;
-    }
-
-    .select2-container--default .select2-selection--multiple {
-      height: auto;
-    }
-
     .filter-icon {
       background-color: white;
       border: 1px solid #ccc;
@@ -33,9 +20,12 @@
       box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
       margin: 5px;
     }
-  </style>
 
-  <script type="module" src="./script.js"></script>
+    #regioes-filter.closed .options-container {
+      /* Esconde as opções quando o dropdown está fechado */
+      display: none;
+    }
+  </style>
 </head>
 
 <body class="h-screen m-0 p-0 font-roboto">
@@ -47,64 +37,29 @@
     </div>
 
     <div class="flex flex-col flex-grow w-full">
-      <div id="filters" class="flex flex-row justify-around items-center p-2 bg-white border-b border-gray-300 w-full">
-        <select id="regioes-select" class="mr-2 p-1 border border-gray-300 rounded-md" multiple="multiple">
+      <!-- <div id="filters" class="flex flex-row justify-around items-center p-2 bg-white border-b border-gray-300 w-full"> -->
+      <!-- <select id="regioes-select" class="mr-2 p-1 border border-gray-300 rounded-md">
+          <option value="no_selected">Selecionar Camada</option>
           <option value="caparao">Caparaó</option>
           <option value="central">Central</option>
           <option value="metropolitana">Metropolitana</option>
           <option value="norte">Norte</option>
           <option value="serrana">Serrana</option>
           <option value="sul">Sul</option>
-        </select>
-        <select id="municipios-select" class="mr-2 p-1 border border-gray-300 rounded-md" multiple="multiple">
+        </select> -->
+      <!-- <select id="municipios-select" class="mr-2 p-1 border border-gray-300 rounded-md">
           <option value="no_selected">Selecionar Município</option>
-          <!-- Adicione aqui a lista de todos os municípios do ES -->
-        </select>
-        <select id="segmentos-select" class="mr-2 p-1 border border-gray-300 rounded-md" multiple="multiple">
+        </select> -->
+      <!-- <select id="segmentos-select" class="mr-2 p-1 border border-gray-300 rounded-md">
           <option value="no_selected">Selecionar Segmento</option>
-          <!-- <option value="ecoturismo">Ecoturismo e Aventura</option>
-          <option value="praia">Sol e Praia</option>
-          <option value="historico">Histórico Cultural</option>
-          <option value="religioso">Religioso</option>
-          <option value="gastronomia">Gastronomia</option>
-          <option value="eventos">Eventos regionais</option> -->
-        </select>
-      </div>
-
+        </select> -->
+      <!-- </div> -->
       <div id="map" class="flex-row h-full w-full bg-blue-200"></div>
     </div>
   </div>
-
-  <!-- jQuery -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-  <!-- Select2 JS -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
-  <!-- Google Maps API -->
   <script
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDE8EhxgBC6_4Z64dTV7bZ-z6CY09KJ5DI&libraries=places&callback=initMap"
     defer></script>
-
-  <script>
-    $(document).ready(function () {
-      $('#regioes-select').select2({
-        placeholder: "Selecionar Camada",
-        allowClear: true,
-        width: '210px'
-      });
-
-      $('#municipios-select').select2({
-        placeholder: "Selecionar Município",
-        allowClear: true,
-        width: '210px'
-      });
-
-      $('#segmentos-select').select2({
-        placeholder: "Selecionar Segmento",
-        allowClear: true,
-        width: '210px'
-      });
-    });
-  </script>
 </body>
 
 </html>

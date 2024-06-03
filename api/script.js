@@ -183,37 +183,71 @@ async function removeMarkers(zoomLevel) {
 }
 
 function displayLocationInfo(place) {
+  const locationImage = document.getElementById('location-image');
+  const locationTitle = document.getElementById('location-title');
+  const locationRating = document.getElementById('location-rating');
   const tabContent = document.getElementById('tab-content');
-  const tabs = document.getElementById('tabs');
 
-  const photosHtml = place.photos
-    ? place.photos.slice(0, 5).map(photo => `<img src="${photo.getUrl({ maxWidth: 200, maxHeight: 200 })}" alt="${place.name}" class="max-w-full h-auto mb-2 rounded-md">`).join('')
-    : 'N/A';
+  // Configurar imagem, título e classificação
+  locationImage.src = place.photos ? place.photos[0].getUrl({ maxWidth: 800, maxHeight: 600 }) : 'default_image_url';
+  locationTitle.textContent = place.name;
+  locationRating.innerHTML = `${place.rating || 'N/A'} <i class="fas fa-star text-yellow-400"></i> (${place.user_ratings_total || 0})`;
 
-  tabContent.innerHTML = `
-      <div class="tab-pane active" id="info">
-          <h3 class="text-base mb-2 text-gray-600"><b>Informações</b></h3>
-          <p class="leading-relaxed mb-2"><b>Nome:</b> ${place.name}</p>
-          <p class="leading-relaxed mb-2"><b>Endereço:</b> ${place.formatted_address}</p>
-          <p class="leading-relaxed mb-2"><b>Telefone:</b> ${place.formatted_phone_number || 'N/A'}</p>
-          <p class="leading-relaxed mb-2"><b>Rating:</b> ${place.rating || 'N/A'}</p>
-          <p class="leading-relaxed mb-2"><b>Website:</b> ${place.website ? `<a href="${place.website}" target="_blank" class="text-blue-500 hover:underline">${place.website}</a>` : `<a href="${place.google_meu_negocio}" target="_blank" class="text-blue-500 hover:underline">${place.google_meu_negocio}</a>`}</p>
+  // Conteúdo das abas
+  const infoContent = `
+      <h3 class="text-base mb-2 text-gray-600"><b>Informações</b></h3>
+      <div class="flex items-center mb-4">
+        <i class="fas fa-map-marker-alt text-blue-500 mr-2"></i> 
+        <p class="leading-relaxed mb-2"><b class="text-blue-500">Endereço:</b> ${place.formatted_address}</p>
       </div>
-      <div class="tab-pane" id="photos">
-          <h3 class="text-base mb-2 text-gray-600">Fotos</h3>
-          ${photosHtml}
+      <div class="flex items-center mb-4">
+        <i class="fas fa-phone text-blue-500 mr-2"></i> 
+        <p class="leading-relaxed mb-2"><b class="text-blue-500">Telefone:</b> ${place.formatted_phone_number || 'N/A'}</p>
       </div>
-      <div class="tab-pane" id="reviews">
-          <h3 class="text-base mb-2 text-gray-600">Avaliações</h3>
-          ${place.reviews ? place.reviews.map(review => `<p class="leading-relaxed mb-2">${review.text}</p>`).join('') : 'N/A'}
+      <div class="flex items-center mb-4">
+        <i class="fas fa-star text-blue-500 mr-2"></i> 
+        <p class="leading-relaxed mb-2"><b class="text-blue-500">Rating:</b> ${place.rating || 'N/A'}</p>
+      </div>
+      <div class="flex items-center mb-4">
+        <i class="fas fa-globe text-blue-500 mr-2"></i> 
+        <p class="leading-relaxed mb-2"><b class="text-blue-500">Website:</b> ${place.website ? `<a href="${place.website}" target="_blank" class="text-blue-500 hover:underline">${place.website}</a>` : 'N/A'}</p>
       </div>
   `;
 
-  tabs.innerHTML = `
-      <button class="tab-button active bg-white border-none p-2 cursor-pointer rounded-t-md mr-2" onclick="changeTab('info')">Informações</button>
-      <button class="tab-button bg-white border-none p-2 cursor-pointer rounded-t-md mr-2" onclick="changeTab('photos')">Fotos</button>
-      <button class="tab-button bg-white border-none p-2 cursor-pointer rounded-t-md" onclick="changeTab('reviews')">Avaliações</button>
+  const pricesContent = `
+      <h3 class="text-base mb-2 text-gray-600">Preços</h3>
+      <!-- Adicionar conteúdo relacionado aos preços aqui -->
   `;
+
+  const reviewsContent = `
+      <h3 class="text-base mb-2 text-gray-600">Avaliações</h3>
+      ${place.reviews ? place.reviews.map(review => `<p class="leading-relaxed mb-2">${review.text}</p>`).join('') : 'N/A'}
+  `;
+
+  const aboutContent = `
+      <h3 class="text-base mb-2 text-gray-600">Sobre</h3>
+      <!-- Adicionar conteúdo relacionado ao sobre aqui -->
+  `;
+
+  // Inicialmente, exibir o conteúdo da aba "Visão geral"
+  tabContent.innerHTML = infoContent;
+
+  // Lógica para alternar entre as abas
+  window.changeTab = function (tab) {
+    document.querySelectorAll('.tab-button').forEach(button => button.classList.remove('active'));
+
+    if (tab === 'info') {
+      tabContent.innerHTML = infoContent;
+    } else if (tab === 'precos') {
+      tabContent.innerHTML = pricesContent;
+    } else if (tab === 'reviews') {
+      tabContent.innerHTML = reviewsContent;
+    } else if (tab === 'sobre') {
+      tabContent.innerHTML = aboutContent;
+    }
+
+    document.querySelector(`.tab-button[onclick="changeTab('${tab}')"]`).classList.add('active');
+  }
 }
 
 function displayCustomLocationInfo(place) {
@@ -370,7 +404,7 @@ async function initMap() {
     previousZoomLevel = map.getZoom();
     map.addListener('zoom_changed', function () {
 
-      const checkboxesMunicipios = segmentosControlDiv.querySelectorAll('#segmentos-filter input[type="checkbox"]');
+      const checkboxesMunicipios = municipiosControlDiv.querySelectorAll('#municipios-filter input[type="checkbox"]');
       const municipiosSelecionados = Array.from(checkboxesMunicipios)
         .filter(checkbox => checkbox.checked)
         .map(checkbox => checkbox.value);

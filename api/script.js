@@ -8,14 +8,14 @@ let service;
 
 let filtrosControlDiv = null;
 
-let regioesSelect = null;
-let regioesControlDiv = null;
+let regionaisSelect = null;
+let regionaisControlDiv = null;
 
 let municipiosSelect = null;
 let municipiosControlDiv = null;
 
-let segmentosSelect = null;
-let segmentosControlDiv = null;
+let atrativosSelect = null;
+let atrativosControlDiv = null;
 
 let marcadorES = null;
 // Função para criar o marcador do Espírito Santo
@@ -409,13 +409,13 @@ async function initMap() {
         .filter(checkbox => checkbox.checked)
         .map(checkbox => checkbox.value);
 
-      const checkboxesSegmentos = segmentosControlDiv.querySelectorAll('#segmentos-filter input[type="checkbox"]');
-      const segmentosSelecionados = Array.from(checkboxesSegmentos)
+      const checkboxesAtrativos = atrativosControlDiv.querySelectorAll('#atrativos-filter input[type="checkbox"]');
+      const atrativosSelecionados = Array.from(checkboxesAtrativos)
         .filter(checkbox => checkbox.checked)
         .map(checkbox => checkbox.value);
 
 
-      if (municipiosSelecionados.length === 0 && segmentosSelecionados.length === 0) {
+      if (municipiosSelecionados.length === 0 && atrativosSelecionados.length === 0) {
         const currentZoomLevel = map.getZoom();
         // Verifica se o zoom mudou para um nível que requer atualização
         // if ((previousZoomLevel <= 7 && currentZoomLevel > 7) ||
@@ -468,45 +468,45 @@ async function initMap() {
   });
 }
 
-function createFilterRegiao() {
-  regioesControlDiv = document.createElement('div');
-  regioesControlDiv.id = 'regioes-filter';
-  regioesControlDiv.classList.add('filter-icon', 'closed', 'max-h-11'); // Adiciona a classe 'closed'
-  regioesControlDiv.innerHTML = `
-    <label for="regioes" class="block text-sm font-medium text-gray-700 cursor-pointer">
-    <img src="../assets/brasil.png" alt="Ícone de Região" class="inline-block mr-2 w-4 h-4"> Região <i class="fa-solid fa-caret-down"></i>
+function createFilterRegional() {
+  regionaisControlDiv = document.createElement('div');
+  regionaisControlDiv.id = 'regionais-filter';
+  regionaisControlDiv.classList.add('filter-icon', 'closed', 'max-h-11'); // Adiciona a classe 'closed'
+  regionaisControlDiv.innerHTML = `
+    <label for="regionais" class="block text-sm font-medium text-gray-700 cursor-pointer">
+    <img src="../assets/brasil.png" alt="Ícone de Regional" class="inline-block mr-2 w-4 h-4"> Regional <i class="fa-solid fa-caret-down"></i>
     </label>
     <div class="mt-1 options-container"></div>
   `;
 
-  filtrosControlDiv.appendChild(regioesControlDiv);
+  filtrosControlDiv.appendChild(regionaisControlDiv);
 
-  const regioesContainer = regioesControlDiv.querySelector('.options-container'); // Seleciona o container das opções
-  const regioes = ["caparao", "central", "metropolitana", "norte", "serrana", "sul"];
+  const regionaisContainer = regionaisControlDiv.querySelector('.options-container'); // Seleciona o container das opções
+  const regionais = ["caparao", "central", "metropolitana", "norte", "serrana", "sul"];
 
-  regioes.forEach(regiao => {
+  regionais.forEach(regional => {
     const checkboxLabel = document.createElement('label');
     checkboxLabel.classList.add('block', 'text-sm', 'font-medium', 'text-gray-700');
 
     const checkbox = document.createElement('input');
     checkbox.type = 'checkbox';
-    checkbox.id = regiao;
-    checkbox.value = regiao;
-    checkbox.addEventListener('change', updateMapByRegiao);
+    checkbox.id = regional;
+    checkbox.value = regional;
+    checkbox.addEventListener('change', updateMapByRegional);
 
     checkboxLabel.appendChild(checkbox);
-    checkboxLabel.appendChild(document.createTextNode(regiao));
-    regioesContainer.appendChild(checkboxLabel);
+    checkboxLabel.appendChild(document.createTextNode(regional));
+    regionaisContainer.appendChild(checkboxLabel);
   });
 
-  const label = regioesControlDiv.querySelector('label');
+  const label = regionaisControlDiv.querySelector('label');
   label.addEventListener('click', () => {
-    regioesControlDiv.classList.toggle('closed');
-    regioesControlDiv.classList.toggle('max-h-11');
-    if (regioesControlDiv.classList.contains('max-h-40')) {
-      regioesControlDiv.classList.toggle('max-h-40');
+    regionaisControlDiv.classList.toggle('closed');
+    regionaisControlDiv.classList.toggle('max-h-11');
+    if (regionaisControlDiv.classList.contains('max-h-40')) {
+      regionaisControlDiv.classList.toggle('max-h-40');
     } else {
-      regioesControlDiv.classList.add('max-h-40');
+      regionaisControlDiv.classList.add('max-h-40');
     }
   });
 }
@@ -518,7 +518,7 @@ function createFilterMunicipio() {
   municipiosControlDiv.classList.add('filter-icon', 'closed', 'max-h-11'); // Adiciona a classe 'closed'
   municipiosControlDiv.innerHTML = `
       <label for="municipios" class="block text-sm font-medium text-gray-700 cursor-pointer">
-        <img src="../assets/mapa.png" alt="Ícone de Região" class="inline-block mr-2 w-4 h-4"> Município <i class="fa-solid fa-caret-down"></i>
+        <img src="../assets/mapa.png" alt="Ícone de Regional" class="inline-block mr-2 w-4 h-4"> Município <i class="fa-solid fa-caret-down"></i>
       </label>
       <div class="mt-1 options-container max-h-40 overflow-y-auto"></div>
     `;
@@ -551,44 +551,44 @@ function createFilterMunicipio() {
   // });
 }
 
-function createFilterSegmentos() {
-  segmentosControlDiv = document.createElement('div');
-  segmentosControlDiv.id = 'segmentos-filter';
-  segmentosControlDiv.classList.add('filter-icon', 'closed', 'max-h-11'); // Adiciona a classe 'closed' inicialmente
-  segmentosControlDiv.innerHTML = `
-    <label for="segmentos" class="block text-sm font-medium text-gray-700 cursor-pointer">
-    <img src="../assets/sinal-de-direcao.png" alt="Ícone de Segmento" class="inline-block mr-2 w-4 h-4"> Segmento <i class="fa-solid fa-caret-down"></i>
+function createFilterAtrativos() {
+  atrativosControlDiv = document.createElement('div');
+  atrativosControlDiv.id = 'atrativos-filter';
+  atrativosControlDiv.classList.add('filter-icon', 'closed', 'max-h-11'); // Adiciona a classe 'closed' inicialmente
+  atrativosControlDiv.innerHTML = `
+    <label for="atrativos" class="block text-sm font-medium text-gray-700 cursor-pointer">
+    <img src="../assets/sinal-de-direcao.png" alt="Ícone de Atrativo" class="inline-block mr-2 w-4 h-4"> Atrativo <i class="fa-solid fa-caret-down"></i>
     </label>
     <div class="mt-1 options-container max-h-40 overflow-y-auto"></div>
   `;
 
-  filtrosControlDiv.appendChild(segmentosControlDiv);
+  filtrosControlDiv.appendChild(atrativosControlDiv);
 
-  const segmentosContainer = segmentosControlDiv.querySelector('.options-container');
-  const segmentos = [...new Set(dadosPlanilha.map(m => m.segmento))];
+  const atrativosContainer = atrativosControlDiv.querySelector('.options-container');
+  const atrativos = [...new Set(dadosPlanilha.map(m => m.segmento))];
 
-  segmentos.forEach(segmento => {
-    if (segmento) {
+  atrativos.forEach(atrativo => {
+    if (atrativo) {
       const checkboxLabel = document.createElement('label');
       checkboxLabel.classList.add('block', 'text-sm', 'font-medium', 'text-gray-700');
 
       const checkbox = document.createElement('input');
       checkbox.type = 'checkbox';
-      checkbox.id = segmento;
-      checkbox.value = segmento;
-      checkbox.addEventListener('change', updateMapBySegmentos);
+      checkbox.id = atrativo;
+      checkbox.value = atrativo;
+      checkbox.addEventListener('change', updateMapByAtrativos);
 
       checkboxLabel.appendChild(checkbox);
-      checkboxLabel.appendChild(document.createTextNode(segmento));
-      segmentosContainer.appendChild(checkboxLabel);
+      checkboxLabel.appendChild(document.createTextNode(atrativo));
+      atrativosContainer.appendChild(checkboxLabel);
     }
   });
 
-  const label = segmentosControlDiv.querySelector('label');
+  const label = atrativosControlDiv.querySelector('label');
   label.addEventListener('click', () => {
-    segmentosControlDiv.classList.toggle('closed');
-    segmentosControlDiv.classList.toggle('max-h-11');
-    // segmentosControlDiv.classList.add('max-h-56');
+    atrativosControlDiv.classList.toggle('closed');
+    atrativosControlDiv.classList.toggle('max-h-11');
+    // atrativosControlDiv.classList.add('max-h-56');
   });
 }
 
@@ -598,9 +598,9 @@ async function createFiltersInMap() {
   filtrosControlDiv.id = 'filtros-control';
 
   // Cria os filtros dentro do container de filtros
+  createFilterRegional();
   createFilterMunicipio();
-  createFilterSegmentos();
-  createFilterRegiao();
+  createFilterAtrativos();
 
   // Adiciona o container de filtros ao mapa
   map.controls[google.maps.ControlPosition.TOP_CENTER].push(filtrosControlDiv);
@@ -609,24 +609,21 @@ async function createFiltersInMap() {
 
 ////////////////////////////// TRATAMENTO SEGMENTOS //////////////////////////////
 
-async function updateMapBySegmentos() {
-  const checkboxes = segmentosControlDiv.querySelectorAll('#segmentos-filter input[type="checkbox"]');
-  const segmentosSelecionadas = Array.from(checkboxes)
+async function updateMapByAtrativos() {
+  const checkboxes = atrativosControlDiv.querySelectorAll('#atrativos-filter input[type="checkbox"]');
+  const atrativosSelecionadas = Array.from(checkboxes)
     .filter(checkbox => checkbox.checked)
     .map(checkbox => checkbox.value);
 
-  console.log("segmentosSelecionadas: ", segmentosSelecionadas)
-
-
-  if (segmentosSelecionadas.length === 0) {
+  if (atrativosSelecionadas.length === 0) {
     await removeMarkers(0);
     return markAnchorPoints();
   }
 
   await removeMarkers(0);
   for (const local of dadosPlanilha) {
-    for (const segmento of segmentosSelecionadas) {
-      if (removeCharacterAndSpace(local.segmento) === removeCharacterAndSpace(segmento)) {
+    for (const atrativo of atrativosSelecionadas) {
+      if (removeCharacterAndSpace(local.segmento) === removeCharacterAndSpace(atrativo)) {
         marcadoresFiltrados.push(local);
       }
     }
@@ -656,14 +653,14 @@ async function updateMapBySegmentos() {
 ////////////////////////////// TRATAMENTO MUNICIPIO //////////////////////////////
 
 // Função para montar o array de municípios baseados nas regiões selecionadas
-function montaArrayDeMunicipos(regioesSelecionadas) {
+function montaArrayDeMunicipos(regionaisSelecionadas) {
   let municipiosUnicos = [...new Set(dadosPlanilha.map(m => m.cidade))];
 
-  if (regioesSelecionadas && regioesSelecionadas.length) {
+  if (regionaisSelecionadas && regionaisSelecionadas.length) {
     const municipiosPorRegional = new Set();
-    for (const regiao of regioesSelecionadas) {
+    for (const regional of regionaisSelecionadas) {
       for (const local of dadosPlanilha) {
-        if (removeCharacterAndSpace(local.regional) === regiao) {
+        if (removeCharacterAndSpace(local.regional) === regional) {
           municipiosPorRegional.add(local.cidade);
         }
       }
@@ -745,12 +742,12 @@ async function updateMapByMunicipio() {
 
 ////////////////////////////// TRATAMENTO REGIAO //////////////////////////////
 const dadosCorRegioes = [
-  { regiao: 'caparao', cor: '#9D98CB' },
-  { regiao: 'central', cor: '#FBBE12' },
-  { regiao: 'metropolitana', cor: '#F3965A' },
-  { regiao: 'norte', cor: '#00B9EE' },
-  { regiao: 'serrana', cor: '#F198C0' },
-  { regiao: 'sul', cor: '#64972F' }
+  { regional: 'caparao', cor: '#9D98CB' },
+  { regional: 'central', cor: '#FBBE12' },
+  { regional: 'metropolitana', cor: '#F3965A' },
+  { regional: 'norte', cor: '#00B9EE' },
+  { regional: 'serrana', cor: '#F198C0' },
+  { regional: 'sul', cor: '#64972F' }
 ];
 let demarcacoesAtuais = [];
 function removerDemarcacoesAtuais() {
@@ -758,23 +755,22 @@ function removerDemarcacoesAtuais() {
   demarcacoesAtuais = [];
 }
 
-async function updateMapByRegiao() {
+async function updateMapByRegional() {
   // Remove demarcações atuais
   removerDemarcacoesAtuais();
 
-  // const regiaoSelecionada = regioesSelect.value;
-  const checkboxes = regioesControlDiv.querySelectorAll('#regioes-filter input[type="checkbox"]');
-  const regioesSelecionadas = Array.from(checkboxes)
+  const checkboxes = regionaisControlDiv.querySelectorAll('#regionais-filter input[type="checkbox"]');
+  const regionaisSelecionadas = Array.from(checkboxes)
     .filter(checkbox => checkbox.checked)
     .map(checkbox => checkbox.value);
 
-  if (regioesSelecionadas.length === 0) {
+  if (regionaisSelecionadas.length === 0) {
     return montaArrayDeMunicipos();
   } else {
-    montaArrayDeMunicipos(regioesSelecionadas); // Passa um array de regiões selecionadas
-    const municipiosPorRegiao = buscaRegioes(regioesSelecionadas);
+    montaArrayDeMunicipos(regionaisSelecionadas); // Passa um array de regiões selecionadas
+    const municipiosPorRegional = buscaRegioes(regionaisSelecionadas);
 
-    if (municipiosPorRegiao) {
+    if (municipiosPorRegional) {
       fetch('../geojs-32-mun.json')
         .then(response => {
           if (!response.ok) {
@@ -784,27 +780,27 @@ async function updateMapByRegiao() {
         })
         .then(async geoJsonMunicipios => {
           try {
-            for (let i = 0; i < regioesSelecionadas.length; i++) {
-              const demarcacaoPorRegiao = new google.maps.Data();
-              municipiosPorRegiao[regioesSelecionadas[i]].forEach(municipio => {
+            for (let i = 0; i < regionaisSelecionadas.length; i++) {
+              const demarcacaoPorRegional = new google.maps.Data();
+              municipiosPorRegional[regionaisSelecionadas[i]].forEach(municipio => {
                 const municipioData = geoJsonMunicipios.features.find(
                   (feature) => removeCharacterAndSpace(feature.properties.name) === municipio
                 );
                 if (municipioData) {
-                  demarcacaoPorRegiao.addGeoJson(municipioData);
+                  demarcacaoPorRegional.addGeoJson(municipioData);
                 }
               });
 
-              const corRegiao = dadosCorRegioes.find(dado => dado.regiao === regioesSelecionadas[i]).cor;
-              demarcacaoPorRegiao.setStyle({
-                fillColor: corRegiao,
+              const corRegional = dadosCorRegioes.find(dado => dado.regional === regionaisSelecionadas[i]).cor;
+              demarcacaoPorRegional.setStyle({
+                fillColor: corRegional,
                 fillOpacity: 0.3,
-                strokeColor: corRegiao,
+                strokeColor: corRegional,
                 strokeWeight: 1,
               });
 
-              demarcacaoPorRegiao.setMap(map);
-              demarcacoesAtuais.push(demarcacaoPorRegiao); // Adiciona a demarcação atual ao array
+              demarcacaoPorRegional.setMap(map);
+              demarcacoesAtuais.push(demarcacaoPorRegional); // Adiciona a demarcação atual ao array
             }
           } catch (error) {
             console.log("error: ", error);
@@ -834,9 +830,9 @@ function buscaRegioes() {
   return resultado;
 
   // const setCidades = new Set();
-  // for (const regiao of regioes) {
+  // for (const regional of regionais) {
   //   for (const local of dadosPlanilha) {
-  //     if (removeCharacterAndSpace(local.regional) === regiao) {
+  //     if (removeCharacterAndSpace(local.regional) === regional) {
   //       setCidades.add(removeCharacterAndSpace(local.cidade));
   //     }
   //   }

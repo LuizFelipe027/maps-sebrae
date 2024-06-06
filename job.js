@@ -15,7 +15,7 @@ async function lerJson() {
   fs.writeFileSync(pathFileWrite, newData, 'utf8');
 
 }
-lerJson()
+// lerJson()
 
 async function findLatLng(arrLocais) {
   try {
@@ -52,14 +52,44 @@ function ordenarPorLocal(array) {
   console.log("array: ", array[0])
 
   return array.sort((a, b) => {
-      const localA = a.ponto.toLowerCase();
-      const localB = b.ponto.toLowerCase();
-      if (localA < localB) {
-          return -1;
-      }
-      if (localA > localB) {
-          return 1;
-      }
-      return 0;
+    const localA = a.ponto.toLowerCase();
+    const localB = b.ponto.toLowerCase();
+    if (localA < localB) {
+      return -1;
+    }
+    if (localA > localB) {
+      return 1;
+    }
+    return 0;
   });
+}
+
+async function renomearArquivos() {
+  const fs = require('fs');
+  const path = require('path');
+
+  const directoryPath = './assets/icons-municipios'; // Substitua pelo caminho da sua pasta
+
+  fs.readdir(directoryPath, (err, files) => {
+    if (err) {
+      return console.log('Não foi possível listar os arquivos:', err);
+    }
+
+    files.forEach((file, index) => {
+      const oldPath = path.join(directoryPath, file);
+      const newPath = path.join(directoryPath, removeCharacterAndSpace(file));
+      fs.rename(oldPath, newPath, (err) => {
+        if (err) {
+          console.log('Erro ao renomear arquivo:', err);
+        } else {
+          console.log(`Arquivo ${file} renomeado para ${newPath}`);
+        }
+      });
+    });
+  });
+}
+renomearArquivos()
+
+function removeCharacterAndSpace(str) {
+  return str?.replace(/\s/g, '_').normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 }

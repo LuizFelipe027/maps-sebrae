@@ -388,49 +388,56 @@ async function initMap() {
     marcadoresPontos = values.filter(m => !m.ancora && !(dadosPlanilha.find(f => f.ancora.toLowerCase() === 'sim' && f.latitude === m.latitude && f.longitude === m.longitude)));
 
     let isSatellite = false;
-
+    let stylesMap = [
+      // {
+      //   featureType: "road",
+      //   elementType: "geometry",
+      //   stylers: [{ color: "#6590CE" }],
+      // },
+      {
+        featureType: "water",
+        elementType: "geometry",
+        stylers: [{ color: "#6CA4F4" }],
+      },
+      {
+        featureType: "landscape.natural",
+        elementType: "geometry",
+        stylers: [{ color: "#B2D7B7" }],
+      },
+      {
+        featureType: "landscape.man_made",
+        elementType: "geometry",
+        stylers: [{ color: "#FCEFC8" }],
+      },
+      {
+        featureType: "landscape",
+        elementType: "geometry",
+        stylers: [{ color: "#D7F0FF" }],
+      },
+      {
+        featureType: "poi",
+        elementType: "labels",
+        stylers: [{ visibility: "off" }],
+      },
+      {
+        featureType: "road.highway",
+        elementType: "geometry",
+        stylers: [{ visibility: "off" }],
+      },
+      // {
+      //   featureType: "landscape",
+      //   stylers: [{ visibility: "off" }],
+      // },
+    ]
     const latLng = new google.maps.LatLng(-19.663280, -40.519634);
     map = new google.maps.Map(document.getElementById("map"), {
       zoom: 8,
       center: latLng,
-      styles: [
-        {
-          featureType: "road",
-          elementType: "geometry",
-          stylers: [{ color: "#6590CE" }],
-        },
-        {
-          featureType: "water",
-          elementType: "geometry",
-          stylers: [{ color: "#6CA4F4" }],
-        },
-        {
-          featureType: "landscape.natural",
-          elementType: "geometry",
-          stylers: [{ color: "#B2D7B7" }],
-        },
-        {
-          featureType: "landscape.man_made",
-          elementType: "geometry",
-          stylers: [{ color: "#FCEFC8" }],
-        },
-        {
-          featureType: "landscape",
-          elementType: "geometry",
-          stylers: [{ color: "#D7F0FF" }],
-        },
-        {
-          featureType: "poi",
-          elementType: "labels",
-          stylers: [{ visibility: "off" }],
-        },
-        // {
-        //   featureType: "landscape",
-        //   stylers: [{ visibility: "off" }],
-        // },
-      ],
+      styles: stylesMap,
       mapTypeId: "roadmap",
       tilt: 45,
+      mapTypeControl: false,
+      streetViewControl: false
     });
     demarcarFronteiraBrasil()
     await createFiltersInMap();
@@ -475,6 +482,30 @@ async function initMap() {
 
 
       const currentZoomLevel = map.getZoom();
+      console.log("currentZoomLevel: ", currentZoomLevel)
+      if (currentZoomLevel > 10) {
+
+        map.setOptions({
+          styles: [
+            ...stylesMap,
+            {
+              featureType: "road",
+              elementType: "geometry",
+              stylers: [{ color: "#6590CE" }],
+            },
+            {
+              featureType: "road.highway",
+              elementType: "geometry",
+              stylers: [{ visibility: "on" }],
+            },
+          ]
+        });
+      } else {
+        map.setOptions({
+          styles: stylesMap
+        });
+      }
+
       if (municipiosSelecionados.length === 0 && atrativosSelecionados.length === 0 && regionaisSelecionados.length === 0) {
         // Verifica se o zoom mudou para um nível que requer atualização
         // if ((previousZoomLevel <= 7 && currentZoomLevel > 7) ||
@@ -549,10 +580,10 @@ async function initMap() {
 function createFilterRegional() {
   regionaisControlDiv = document.createElement('div');
   regionaisControlDiv.id = 'regionais-filter';
-  regionaisControlDiv.classList.add('filter-icon', 'closed', 'max-h-11'); // Adiciona a classe 'closed'
+  regionaisControlDiv.classList.add('filter-icon', 'closed', 'max-h-11', 'rounded-3xl'); // Adiciona a classe 'closed'
   regionaisControlDiv.innerHTML = `
-    <label for="regionais" class="block text-sm font-medium text-gray-700 cursor-pointer">
-    <img src="../assets/brasil.png" alt="Ícone de Regional" class="inline-block mr-2 w-4 h-4"> Regional <i class="fa-solid fa-caret-down"></i>
+    <label for="regionais" class="block text-sm font-medium text-white cursor-pointer">
+    <img src="../assets/brasil.png" alt="Ícone de Regional" class="inline-block mr-2 w-4 h-4"> Regionais <i class="fa-solid fa-caret-down"></i>
     </label>
     <div class="mt-1 options-container"></div>
   `;
@@ -564,7 +595,7 @@ function createFilterRegional() {
 
   regionais.forEach(regional => {
     const checkboxLabel = document.createElement('label');
-    checkboxLabel.classList.add('block', 'text-sm', 'font-medium', 'text-gray-700');
+    checkboxLabel.classList.add('block', 'text-sm', 'font-medium', 'text-white');
 
     const checkbox = document.createElement('input');
     checkbox.type = 'checkbox';
@@ -593,9 +624,9 @@ function createFilterRegional() {
 function createFilterMunicipio() {
   municipiosControlDiv = document.createElement('div');
   municipiosControlDiv.id = 'municipios-filter';
-  municipiosControlDiv.classList.add('filter-icon', 'closed', 'max-h-11'); // Adiciona a classe 'closed'
+  municipiosControlDiv.classList.add('filter-icon', 'closed', 'max-h-11', 'rounded-3xl'); // Adiciona a classe 'closed'
   municipiosControlDiv.innerHTML = `
-      <label for="municipios" class="block text-sm font-medium text-gray-700 cursor-pointer">
+      <label for="municipios" class="block text-sm font-medium text-white cursor-pointer">
         <img src="../assets/mapa.png" alt="Ícone de Regional" class="inline-block mr-2 w-4 h-4"> Município <i class="fa-solid fa-caret-down"></i>
       </label>
       <div class="mt-1 options-container max-h-40 overflow-y-auto"></div>
@@ -615,12 +646,12 @@ function createFilterMunicipio() {
 function createFilterAtrativos() {
   atrativosControlDiv = document.createElement('div');
   atrativosControlDiv.id = 'atrativos-filter';
-  atrativosControlDiv.classList.add('filter-icon'); // Adiciona a classe 'closed' inicialmente ('closed', 'max-h-11')
+  atrativosControlDiv.classList.add('filter-icon', 'rounded-3xl'); // Adiciona a classe 'closed' inicialmente ('closed', 'max-h-11')
   atrativosControlDiv.innerHTML = `
-    <label for="atrativos" class="block text-sm font-medium text-gray-700 cursor-pointer">
-    <img src="../assets/sinal-de-direcao.png" alt="Ícone de Atrativo" class="inline-block mr-2 w-4 h-4"> Atrativo <i class="fa-solid fa-caret-down"></i>
+    <label for="atrativos" class="block text-sm font-medium text-white cursor-pointer">
+    <img src="../assets/sinal-de-direcao.png" alt="Ícone de Atrativo" class="inline-block mr-2 w-4 h-4"> Atrativos <i class="fa-solid fa-caret-down"></i>
     </label>
-    <div class="mt-1 options-container max-h-40 overflow-y-auto"></div>
+    <div class="mt-1 options-container max-h-40 overflow-y-auto text-white"></div>
   `;
 
   filtrosControlDiv.appendChild(atrativosControlDiv);
@@ -631,7 +662,7 @@ function createFilterAtrativos() {
   atrativos.forEach(atrativo => {
     if (atrativo) {
       const checkboxLabel = document.createElement('label');
-      checkboxLabel.classList.add('block', 'text-sm', 'font-medium', 'text-gray-700');
+      checkboxLabel.classList.add('block', 'text-sm', 'font-medium', 'text-white');
 
       const checkbox = document.createElement('input');
       checkbox.type = 'checkbox';
@@ -655,7 +686,8 @@ function createFilterAtrativos() {
 
 async function createFiltersInMap() {
   filtrosControlDiv = document.createElement('div');
-  filtrosControlDiv.classList.add('justify-around', 'row', 'flex');
+  filtrosControlDiv.classList.add('justify-around', 'row', 'flex', 'bg-white', 'rounded-3xl');
+  filtrosControlDiv.style.minWidth = '350px';
   filtrosControlDiv.id = 'filtros-control';
 
   // Cria os filtros dentro do container de filtros
@@ -721,7 +753,7 @@ function montaArrayDeMunicipos(regionaisSelecionadas) {
   municipiosUnicos.forEach(municipio => {
     if (municipio) {
       const checkboxLabel = document.createElement('label');
-      checkboxLabel.classList.add('block', 'text-sm', 'font-medium', 'text-gray-700');
+      checkboxLabel.classList.add('block', 'text-sm', 'font-medium', 'text-white');
 
       const checkbox = document.createElement('input');
       checkbox.type = 'checkbox';

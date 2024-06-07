@@ -397,6 +397,30 @@ async function removeMarkers(zoomLevel) {
 // }
 
 function displayLocationInfo(place) {
+
+  tabInfoControlDiv.innerHTML = `
+      
+        <img id="location-image" src="" alt="Imagem do Local" class="w-full h-48 object-cover rounded-md mb-4">
+
+         
+          <div class="flex items-center justify-between mb-2">
+              <h2 id="location-title" class="text-xl font-bold" style="color: #065FB9;"></h2>
+              <div class="flex items-center">
+                  <span id="location-rating" class="text-yellow-400 text-lg mr-1"></span>
+              </div>
+          </div>
+
+        <div id="tabs" class="flex space-x-2 mb-4">
+              <button style="color: #65C4FF;" class="tab-button bg-white px-3 py-1 rounded-md active" onclick="changeTab('info')">Visão geral</button>
+              <button style="color: #65C4FF;" class="tab-button bg-white px-3 py-1 rounded-md" onclick="changeTab('photos')">Fotos</button>
+              <button style="color: #65C4FF;" class="tab-button bg-white px-3 py-1 rounded-md" onclick="changeTab('reviews')">Avaliações</button>
+          </div>
+
+        <div id="tab-content" class="p-4">
+          <!-- Conteúdo das abas será inserido aqui -->
+        </div>
+      
+  `;
   const locationImage = tabInfoControlDiv.querySelector('#location-image');
   const locationTitle = tabInfoControlDiv.querySelector('#location-title');
   const locationRating = tabInfoControlDiv.querySelector('#location-rating');
@@ -669,9 +693,7 @@ async function initMap() {
         .filter(checkbox => checkbox.checked)
         .map(checkbox => checkbox.value);
 
-
       const currentZoomLevel = map.getZoom();
-      console.log("currentZoomLevel: ", currentZoomLevel)
       if (currentZoomLevel > 10) {
 
         map.setOptions({
@@ -769,7 +791,7 @@ async function initMap() {
 function createFilterRegional() {
   regionaisControlDiv = document.createElement('div');
   regionaisControlDiv.id = 'regionais-filter';
-  regionaisControlDiv.classList.add('filter-icon', 'closed', 'max-h-11', 'rounded-3xl'); // Adiciona a classe 'closed'
+  regionaisControlDiv.classList.add('filter-icon', 'closed', 'max-h-11', 'rounded-3xl');
   regionaisControlDiv.innerHTML = `
     <label for="regionais" class="block text-sm font-medium text-white cursor-pointer">
     <img src="../assets/icons-filtros/Icones_mapa-10.png" alt="Ícone de Regional" class="inline-block mr-2 w-5 h-5"> Regionais <i class="fa-solid fa-caret-down"></i>
@@ -779,22 +801,32 @@ function createFilterRegional() {
 
   filtrosControlDiv.appendChild(regionaisControlDiv);
 
-  const regionaisContainer = regionaisControlDiv.querySelector('.options-container'); // Seleciona o container das opções
+  const regionaisContainer = regionaisControlDiv.querySelector('.options-container');
   const regionais = ["caparao", "central", "metropolitana", "norte", "serrana", "sul"];
 
   regionais.forEach(regional => {
-    const checkboxLabel = document.createElement('label');
-    checkboxLabel.classList.add('block', 'text-sm', 'font-medium', 'text-white');
+    // Cria o container do checkbox
+    const checkboxContainer = document.createElement('label');
+    checkboxContainer.classList.add('checkbox-container', 'block', 'text-sm', 'font-medium', 'text-white');
 
+    // Cria o input checkbox
     const checkbox = document.createElement('input');
     checkbox.type = 'checkbox';
     checkbox.id = regional;
     checkbox.value = regional;
     checkbox.addEventListener('change', updateMapByRegional);
 
-    checkboxLabel.appendChild(checkbox);
-    checkboxLabel.appendChild(document.createTextNode(regional));
-    regionaisContainer.appendChild(checkboxLabel);
+    // Cria o elemento visual do checkbox
+    const checkmark = document.createElement('span');
+    checkmark.classList.add('checkmark');
+
+    // Adiciona os elementos ao container
+    checkboxContainer.appendChild(checkbox);
+    checkboxContainer.appendChild(checkmark);
+    checkboxContainer.appendChild(document.createTextNode(regional));
+
+    // Adiciona o container ao container principal
+    regionaisContainer.appendChild(checkboxContainer);
   });
 
   const label = regionaisControlDiv.querySelector('label');
@@ -817,7 +849,7 @@ function createFilterMunicipio() {
       <label for="municipios" class="block text-sm font-medium text-white cursor-pointer">
         <img src="../assets/icons-filtros/Icones_mapa-11.png" alt="Ícone de Regional" class="inline-block mr-2 w-5 h-5"> Município <i class="fa-solid fa-caret-down"></i>
       </label>
-      <div class="mt-1 options-container max-h-40 overflow-y-auto"></div>
+      <div class="mt-1 options-container max-h-40 overflow-y-auto scroll-bar"></div>
     `;
 
   filtrosControlDiv.appendChild(municipiosControlDiv);
@@ -834,7 +866,7 @@ function createFilterMunicipio() {
 function createFilterAtrativos() {
   atrativosControlDiv = document.createElement('div');
   atrativosControlDiv.id = 'atrativos-filter';
-  atrativosControlDiv.classList.add('filter-icon', 'rounded-3xl', 'closed', 'max-h-11'); // Adiciona a classe 'closed' inicialmente ()
+  atrativosControlDiv.classList.add('filter-icon', 'rounded-3xl', 'closed', 'max-h-11');
   atrativosControlDiv.innerHTML = `
     <label for="atrativos" class="block text-sm font-medium text-white cursor-pointer">
     <img src="../assets/icons-filtros/Icones_mapa-12.png" alt="Ícone de Atrativo" class="inline-block mr-2 w-5 h-5"> Atrativos <i class="fa-solid fa-caret-down"></i>
@@ -849,18 +881,28 @@ function createFilterAtrativos() {
 
   atrativos.forEach(atrativo => {
     if (atrativo) {
-      const checkboxLabel = document.createElement('label');
-      checkboxLabel.classList.add('block', 'text-sm', 'font-medium', 'text-white');
+      // Cria o container do checkbox
+      const checkboxContainer = document.createElement('label');
+      checkboxContainer.classList.add('checkbox-container', 'block', 'text-sm', 'font-medium', 'text-white');
 
+      // Cria o input checkbox
       const checkbox = document.createElement('input');
       checkbox.type = 'checkbox';
       checkbox.id = atrativo;
       checkbox.value = atrativo;
       checkbox.addEventListener('change', updateMapByAtrativos);
 
-      checkboxLabel.appendChild(checkbox);
-      checkboxLabel.appendChild(document.createTextNode(atrativo));
-      atrativosContainer.appendChild(checkboxLabel);
+      // Cria o elemento visual do checkbox
+      const checkmark = document.createElement('span');
+      checkmark.classList.add('checkmark');
+
+      // Adiciona os elementos ao container
+      checkboxContainer.appendChild(checkbox);
+      checkboxContainer.appendChild(checkmark);
+      checkboxContainer.appendChild(document.createTextNode(atrativo));
+
+      // Adiciona o container ao container principal
+      atrativosContainer.appendChild(checkboxContainer);
     }
   });
 
@@ -888,31 +930,51 @@ async function createFiltersInMap() {
   map.controls[google.maps.ControlPosition.TOP_CENTER].push(filtrosControlDiv);
 }
 
+async function createTabInfoInMap() {
+  tabInfoControlDiv = document.createElement('div');
+  tabInfoControlDiv.classList.add('bg-white', 'rounded-3xl', 'p-6', 'shadow-lg', 'm-2.5');
+  tabInfoControlDiv.style.width = '385px';
+
+  tabInfoControlDiv.innerHTML = `
+      <div class="text-left">
+        <h3 style="color: #65B9F9;" class="text-base mb-2">MAPA INTERATIVO</h3>
+        <h2 class="text-4xl mb-4" style="color: #6A6A6A;">Bem-vindo ao Mapa Turístico Digital Capixaba</h2>
+        <p class="text-gray-600 mb-6 text-base">Clique, explore e interaja com os pontos turísticos, descubra onde encontrar boa comida, cultura e opções de lazer no Espírito Santo.</p>
+        <div class="flex items-center mb-6">
+          <img src="../assets/icons-infoStart/Layout_Mapa_Digital_Sebrae-15.png" class="w-56 h-32 mr-2" alt="Icone de Atrações">
+          <p style="color: #265EB2;" class="text-base">Clique nos itens do menu para filtrar por Regionais do Sebrae, Municípios ou Atrativos.</p>
+        </div>
+        <div class="flex items-center">
+          <img src="../assets/icons-infoStart/Layout_Mapa_Digital_Sebrae-16.png" class="w-56 h-32 mr-2" alt="Icone de Pontos Turísticos">
+          <p style="color: #265EB2;" class="text-base">Clique em um ponto turístico e confira informações importantes sobre.</p>
+        </div>
+      </div>
+  `;
+
+  // Adiciona o container de filtros ao mapa
+  map.controls[google.maps.ControlPosition.TOP_LEFT].push(tabInfoControlDiv);
+}
 
 // async function createTabInfoInMap() {
-//   tabInfoControlDiv = document.createElement('div');
-//   tabInfoControlDiv.classList.add('justify-around', 'row', 'flex', 'bg-white', 'rounded-3xl', 'm-2.5');
-//   tabInfoControlDiv.style.width = '385px';
 
 //   tabInfoControlDiv.innerHTML = `
-//       <div id="location-info" class="p-4 bg-white">
-//       <div class="bg-gradient p-4 rounded-lg shadow-md max-w-sm">
-//           <img id="location-image" src="" alt="Local Image" class="w-full h-64 object-cover rounded-t-lg">
-//           <div class="absolute bottom-0 left-0 bg-gray-800 bg-opacity-50 text-white p-4">
-//             <h2 id="location-title" class="text-xl font-bold"></h2>
-//             <p id="location-rating" class="text-yellow-400"></p>
+//       <div class="bg-gradient p-4 rounded-lg shadow-md">
+//         <img id="location-image" src="" alt="Imagem do Local" class="w-full h-48 object-cover rounded-md mb-4">
+
+
+//           <div class="flex items-center justify-between mb-2">
+//               <h2 id="location-title" class="text-xl font-bold" style="color: #065FB9;"></h2>
+//               <div class="flex items-center">
+//                   <span id="location-rating" class="text-yellow-400 text-lg mr-1"></span>
+//               </div>
 //           </div>
-//         </div>
-//         <div id="tabs" class="flex border-b mt-4">
-//           <button class="tab-button active bg-white border-none p-2 cursor-pointer rounded-t-md mr-2"
-//             onclick="changeTab('info')">Visão geral</button>
-//           <button class="tab-button bg-white border-none p-2 cursor-pointer rounded-t-md mr-2"
-//             onclick="changeTab('precos')">Preços</button>
-//           <button class="tab-button bg-white border-none p-2 cursor-pointer rounded-t-md mr-2"
-//             onclick="changeTab('reviews')">Avaliações</button>
-//           <button class="tab-button bg-white border-none p-2 cursor-pointer rounded-t-md"
-//             onclick="changeTab('sobre')">Sobre</button>
-//         </div>
+
+//         <div id="tabs" class="flex space-x-2 mb-4">
+//               <button style="color: #65C4FF;" class="tab-button bg-white px-3 py-1 rounded-md active" onclick="changeTab('info')">Visão geral</button>
+//               <button style="color: #65C4FF;" class="tab-button bg-white px-3 py-1 rounded-md" onclick="changeTab('photos')">Fotos</button>
+//               <button style="color: #65C4FF;" class="tab-button bg-white px-3 py-1 rounded-md" onclick="changeTab('reviews')">Avaliações</button>
+//           </div>
+
 //         <div id="tab-content" class="p-4">
 //           <!-- Conteúdo das abas será inserido aqui -->
 //         </div>
@@ -922,39 +984,6 @@ async function createFiltersInMap() {
 //   // Adiciona o container de filtros ao mapa
 //   map.controls[google.maps.ControlPosition.TOP_LEFT].push(tabInfoControlDiv);
 // }
-async function createTabInfoInMap() {
-  tabInfoControlDiv = document.createElement('div');
-  tabInfoControlDiv.classList.add('justify-around', 'row', 'flex', 'bg-white', 'rounded-3xl', 'm-2.5');
-  tabInfoControlDiv.style.width = '385px';
-
-  tabInfoControlDiv.innerHTML = `
-      <div class="bg-gradient p-4 rounded-lg shadow-md">
-        <img id="location-image" src="" alt="Imagem do Local" class="w-full h-48 object-cover rounded-md mb-4">
-
-         
-          <div class="flex items-center justify-between mb-2">
-              <h2 id="location-title" class="text-xl font-bold" style="color: #065FB9;"></h2>
-              <div class="flex items-center">
-                  <span id="location-rating" class="text-yellow-400 text-lg mr-1"></span>
-              </div>
-          </div>
-
-        <div id="tabs" class="flex space-x-2 mb-4">
-              <button style="color: #65C4FF;" class="tab-button bg-white px-3 py-1 rounded-md active" onclick="changeTab('info')">Visão geral</button>
-              <button style="color: #65C4FF;" class="tab-button bg-white px-3 py-1 rounded-md" onclick="changeTab('photos')">Fotos</button>
-              <button style="color: #65C4FF;" class="tab-button bg-white px-3 py-1 rounded-md" onclick="changeTab('reviews')">Avaliações</button>
-          </div>
-
-        <div id="tab-content" class="p-4">
-          <!-- Conteúdo das abas será inserido aqui -->
-        </div>
-      </div>
-  `;
-
-  // Adiciona o container de filtros ao mapa
-  map.controls[google.maps.ControlPosition.TOP_LEFT].push(tabInfoControlDiv);
-}
-
 
 ////////////////////////////// TRATAMENTO SEGMENTOS //////////////////////////////
 
@@ -1008,18 +1037,30 @@ function montaArrayDeMunicipos(regionaisSelecionadas) {
   // Adicionar novos checkboxes
   municipiosUnicos.forEach(municipio => {
     if (municipio) {
-      const checkboxLabel = document.createElement('label');
-      checkboxLabel.classList.add('block', 'text-sm', 'font-medium', 'text-white');
+      // Cria o container do checkbox
+      const checkboxContainer = document.createElement('label');
+      checkboxContainer.classList.add('checkbox-container', 'block', 'text-sm', 'font-medium', 'text-white'); // Use suas classes de estilo aqui
 
+      // Cria o input checkbox
       const checkbox = document.createElement('input');
       checkbox.type = 'checkbox';
       checkbox.id = removeCharacterAndSpace(municipio);
       checkbox.value = municipio;
       checkbox.addEventListener('change', updateMapByMunicipio);
 
-      checkboxLabel.appendChild(checkbox);
-      checkboxLabel.appendChild(document.createTextNode(municipio));
-      municipiosContainer.appendChild(checkboxLabel);
+      // Cria o elemento visual do checkbox (o círculo)
+      const checkmark = document.createElement('span');
+      checkmark.classList.add('checkmark');
+
+      // Adiciona o checkbox e o checkmark ao container
+      checkboxContainer.appendChild(checkbox);
+      checkboxContainer.appendChild(checkmark);
+
+      // Adiciona o texto do label (nome do município) ao container
+      checkboxContainer.appendChild(document.createTextNode(municipio));
+
+      // Adiciona o container completo ao container principal
+      municipiosContainer.appendChild(checkboxContainer);
     }
   });
 }
@@ -1108,10 +1149,6 @@ async function updateMapByRegional() {
 
     return montaArrayDeMunicipos();
   } else {
-
-
-    console.log("zoomLevel: ", zoomLevel)
-
     let arrCondicionalApoio = dadosPlanilha;
     if (zoomLevel <= 12) {
       arrCondicionalApoio = dadosPlanilha.filter(f => f.ancora.toLowerCase() === 'sim')
@@ -1169,7 +1206,7 @@ async function updateMapByRegional() {
           console.error('Erro ao buscar os dados: ', error);
         });
 
-      // map.setZoom(8);
+      map.setZoom(8);
     }
   }
 }

@@ -7,16 +7,18 @@
   <title>ProjetoMaps</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100..700;1,100..700&display=swap"
+    rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
   <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
-  <script src="https://cdn.rawgit.com/googlemaps/v3-utility-library/master/markerwithlabel/src/markerwithlabel.js"></script>
+  <script
+    src="https://cdn.rawgit.com/googlemaps/v3-utility-library/master/markerwithlabel/src/markerwithlabel.js"></script>
   <script type="module" src="./script.js" defer></script>
   <style>
-
     body {
-        font-family: 'Josefin Sans', sans-serif; /* Adiciona a fonte Josefin Sans como primária e uma fonte sans-serif como fallback */
+      font-family: 'Josefin Sans', sans-serif;
+      /* Adiciona a fonte Josefin Sans como primária e uma fonte sans-serif como fallback */
     }
 
     #sidebar {
@@ -52,8 +54,95 @@
       display: none;
     }
 
-    .top5px{
+    .top5px {
       top: 5px;
+    }
+
+    /* Esconde o checkbox padrão */
+    .checkbox-container input[type="checkbox"] {
+      position: absolute;
+      opacity: 0;
+      cursor: pointer;
+      height: 0;
+      width: 0;
+    }
+
+    /* Estiliza o label como um container */
+    .checkbox-container {
+      display: block;
+      position: relative;
+      padding-left: 25px;
+      cursor: pointer;
+      font-size: 16px;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+
+    /* Cria o ícone redondo (desmarcado) */
+    .checkbox-container .checkmark {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 18px;
+      width: 18px;
+      background-color: #005EB8;
+      border-radius: 50%;
+      /* Faz o ícone redondo */
+      border: 1px solid #ffffff;
+    }
+
+    /* Adiciona um efeito de hover */
+    .checkbox-container:hover input~.checkmark {
+      background-color: #ccc;
+    }
+
+    /* Quando o checkbox estiver marcado, adiciona um símbolo de check */
+    .checkbox-container input:checked~.checkmark {
+      background-color: #2196F3;
+      border: none;
+    }
+
+    /* Cria o símbolo de check */
+    .checkbox-container .checkmark:after {
+      content: "";
+      position: absolute;
+      display: none;
+    }
+
+    /* Mostra o check quando marcado */
+    .checkbox-container input:checked~.checkmark:after {
+      display: block;
+    }
+
+    /* Estiliza o check */
+    .checkbox-container .checkmark:after {
+      left: 6px;
+      top: 2px;
+      width: 5px;
+      height: 10px;
+      border: solid white;
+      border-width: 0 3px 3px 0;
+      -webkit-transform: rotate(45deg);
+      -ms-transform: rotate(45deg);
+      transform: rotate(45deg);
+    }
+    
+    ::-webkit-scrollbar {
+      width: 12px;               /* width of the entire scrollbar */
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #5891D3; 
+      border-radius: 20px;       /* color of the tracking area */
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background-color: white;    /* color of the scroll thumb */
+      border-radius: 20px;       /* roundness of the scroll thumb */
+      border: 1px solid rgb(220, 220, 220);  /* creates padding around scroll thumb */
+      width: 6px;
     }
   </style>
 </head>
@@ -81,9 +170,9 @@
         </div>
         <div id="tab-content" class="p-4">
           Conteúdo das abas será inserido aqui -->
-         <!-- </div>
+    <!-- </div>
       </div> 
-     </div> -->  
+     </div> -->
 
     <div class="flex flex-col flex-grow w-full">
       <div id="map" class="flex-row h-full w-full bg-blue-200"></div>

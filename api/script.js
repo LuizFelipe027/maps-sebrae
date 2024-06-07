@@ -13,6 +13,7 @@ let filtrosUtilizados = {
 };
 
 let filtrosControlDiv = null;
+let tabInfoControlDiv = null;
 
 let regionaisSelect = null;
 let regionaisControlDiv = null;
@@ -22,6 +23,121 @@ let municipiosControlDiv = null;
 
 let atrativosSelect = null;
 let atrativosControlDiv = null;
+
+function createCustomFullscreenControl() {
+  const fullscreenControlDiv = document.createElement('div');
+  fullscreenControlDiv.className = 'relative w-12 h-12 cursor-pointer flex items-center justify-center m-2.5';
+  fullscreenControlDiv.style.width = '40px';
+  fullscreenControlDiv.style.height = '40px';
+  fullscreenControlDiv.style.backgroundColor = '#ffffff'; // Fundo branco
+  fullscreenControlDiv.style.borderRadius = '20px'; // Canto arredondado
+  fullscreenControlDiv.style.position = 'relative';
+  fullscreenControlDiv.style.cursor = 'pointer';
+  fullscreenControlDiv.style.display = 'flex';
+  fullscreenControlDiv.style.justifyContent = 'center';
+  fullscreenControlDiv.style.alignItems = 'center';
+  fullscreenControlDiv.style.boxShadow = '0px 1px 4px rgba(0, 0, 0, 0.3)'; // Sombra
+  fullscreenControlDiv.style.margin = '10px';
+
+  // Círculo externo branco
+  const outerCircle = document.createElement('div');
+  outerCircle.className = 'absolute bg-white w-full h-full rounded-full shadow-md';
+  outerCircle.style.width = '50px';
+  outerCircle.style.height = '50px';
+  outerCircle.style.backgroundColor = 'white';
+
+  // Círculo interno azul
+  const innerCircle = document.createElement('div');
+  innerCircle.className = 'absolute w-8 h-8 rounded-full flex items-center justify-center';
+  innerCircle.style.width = '40px';
+  innerCircle.style.height = '40px';
+  innerCircle.style.backgroundColor = '#41BBFF';
+
+  // Ícone de tela cheia do Font Awesome
+  const icon = document.createElement('div');
+  icon.style.fontSize = '20px';
+  icon.style.color = '#005EB8';
+  icon.innerHTML = `<i class="fa-solid fa-expand"></i>`;
+
+  innerCircle.appendChild(icon);
+  fullscreenControlDiv.appendChild(outerCircle);
+  fullscreenControlDiv.appendChild(innerCircle);
+
+  // Adiciona o botão ao mapa
+  map.controls[google.maps.ControlPosition.RIGHT_TOP].push(fullscreenControlDiv);
+
+  // Lógica para alternar tela cheia
+  fullscreenControlDiv.addEventListener('click', () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen();
+      isFullscreen = true;
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+        isFullscreen = false;
+      }
+    }
+  });
+}
+
+function createCustomZoomControl() {
+  // Container principal do controle de zoom
+  const zoomControlDiv = document.createElement('div');
+  zoomControlDiv.className = 'relative cursor-pointer flex flex-col m-2.5';
+  zoomControlDiv.style.width = '50px';
+  zoomControlDiv.style.height = '86px';
+  zoomControlDiv.style.backgroundColor = '#ffffff'; // Fundo branco
+  zoomControlDiv.style.borderRadius = '26px'; // Canto arredondado
+  zoomControlDiv.style.position = 'relative';
+  zoomControlDiv.style.cursor = 'pointer';
+  zoomControlDiv.style.display = 'flex';
+  zoomControlDiv.style.justifyContent = 'center';
+  zoomControlDiv.style.alignItems = 'center';
+  zoomControlDiv.style.boxShadow = '0px 1px 4px rgba(0, 0, 0, 0.3)'; // Sombra
+  zoomControlDiv.style.margin = '10px';
+
+
+  // Círculo interno azul
+  const innerCircleMore = document.createElement('div');
+  innerCircleMore.className = 'rounded-full flex flex-row';
+  innerCircleMore.style.width = '35px';
+  innerCircleMore.style.height = '35px';
+  innerCircleMore.style.marginBottom = '3px';
+  innerCircleMore.style.backgroundColor = '#41BBFF';
+  innerCircleMore.style.justifyContent = 'center';
+  innerCircleMore.style.alignItems = 'center';
+  // Botão de zoom in (+)
+  const zoomInButton = document.createElement('div');
+  zoomInButton.style.color = '#005EB8';
+  zoomInButton.innerHTML = '<span style="font-size: 2rem;">+</span>';
+  zoomInButton.addEventListener('click', () => {
+    map.setZoom(map.getZoom() + 1); // Aumenta o zoom em 1
+  });
+  innerCircleMore.appendChild(zoomInButton);
+
+  // Círculo interno azul
+  const innerCircleLess = document.createElement('div');
+  innerCircleLess.className = 'rounded-full flex flex-row';
+  innerCircleLess.style.width = '35px';
+  innerCircleLess.style.height = '35px';
+  innerCircleLess.style.backgroundColor = '#41BBFF';
+  innerCircleLess.style.justifyContent = 'center';
+  innerCircleLess.style.alignItems = 'center';
+  // Botão de zoom in (+)
+  const zoomOutButton = document.createElement('div');
+  zoomOutButton.style.color = '#005EB8';
+  zoomOutButton.innerHTML = '<span style="font-size: 3rem;">-</span>';
+  zoomOutButton.addEventListener('click', () => {
+    map.setZoom(map.getZoom() - 1); // Diminui o zoom em 1
+  });
+  innerCircleLess.appendChild(zoomOutButton);
+
+  zoomControlDiv.appendChild(innerCircleMore);
+  zoomControlDiv.appendChild(innerCircleLess);
+
+  // Adiciona o controle ao mapa
+  map.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(zoomControlDiv);
+}
 
 let marcadorES = null;
 // Função para criar o marcador do Espírito Santo
@@ -211,11 +327,80 @@ async function removeMarkers(zoomLevel) {
   }
 }
 
+// function displayLocationInfo(place) {
+//   console.log(tabInfoControlDiv)
+//   const locationImage = tabInfoControlDiv.getElementById('location-image');
+//   const locationTitle = tabInfoControlDiv.getElementById('location-title');
+//   const locationRating = tabInfoControlDiv.getElementById('location-rating');
+//   const tabContent = tabInfoControlDiv.getElementById('tab-content');
+
+//   // Configurar imagem, título e classificação
+//   locationImage.src = place.photos ? place.photos[0].getUrl({ maxWidth: 800, maxHeight: 600 }) : 'default_image_url';
+//   locationTitle.textContent = place.name;
+//   locationRating.innerHTML = `${place.rating || 'N/A'} <i class="fas fa-star text-yellow-400"></i> (${place.user_ratings_total || 0})`;
+
+//   // Conteúdo das abas
+//   const infoContent = `
+//       <h3 class="text-base mb-2 text-gray-600"><b>Informações</b></h3>
+//       <div class="flex items-center mb-4">
+//         <i class="fas fa-map-marker-alt text-blue-500 mr-2"></i> 
+//         <p class="leading-relaxed mb-2"><b class="text-blue-500">Endereço:</b> ${place.formatted_address}</p>
+//       </div>
+//       <div class="flex items-center mb-4">
+//         <i class="fas fa-phone text-blue-500 mr-2"></i> 
+//         <p class="leading-relaxed mb-2"><b class="text-blue-500">Telefone:</b> ${place.formatted_phone_number || 'N/A'}</p>
+//       </div>
+//       <div class="flex items-center mb-4">
+//         <i class="fas fa-star text-blue-500 mr-2"></i> 
+//         <p class="leading-relaxed mb-2"><b class="text-blue-500">Rating:</b> ${place.rating || 'N/A'}</p>
+//       </div>
+//       <div class="flex items-center mb-4">
+//         <i class="fas fa-globe text-blue-500 mr-2"></i> 
+//         <p class="leading-relaxed mb-2"><b class="text-blue-500">Website:</b> ${place.website ? `<a href="${place.website}" target="_blank" class="text-blue-500 hover:underline">${place.website}</a>` : 'N/A'}</p>
+//       </div>
+//   `;
+
+//   const pricesContent = `
+//       <h3 class="text-base mb-2 text-gray-600">Preços</h3>
+//       <!-- Adicionar conteúdo relacionado aos preços aqui -->
+//   `;
+
+//   const reviewsContent = `
+//       <h3 class="text-base mb-2 text-gray-600">Avaliações</h3>
+//       ${place.reviews ? place.reviews.map(review => `<p class="leading-relaxed mb-2">${review.text}</p>`).join('') : 'N/A'}
+//   `;
+
+//   const aboutContent = `
+//       <h3 class="text-base mb-2 text-gray-600">Sobre</h3>
+//       <!-- Adicionar conteúdo relacionado ao sobre aqui -->
+//   `;
+
+//   // Inicialmente, exibir o conteúdo da aba "Visão geral"
+//   tabContent.innerHTML = infoContent;
+
+//   // Lógica para alternar entre as abas
+//   window.changeTab = function (tab) {
+//     tabInfoControlDiv.querySelectorAll('.tab-button').forEach(button => button.classList.remove('active'));
+
+//     if (tab === 'info') {
+//       tabContent.innerHTML = infoContent;
+//     } else if (tab === 'precos') {
+//       tabContent.innerHTML = pricesContent;
+//     } else if (tab === 'reviews') {
+//       tabContent.innerHTML = reviewsContent;
+//     } else if (tab === 'sobre') {
+//       tabContent.innerHTML = aboutContent;
+//     }
+
+//     tabInfoControlDiv.querySelector(`.tab-button[onclick="changeTab('${tab}')"]`).classList.add('active');
+//   }
+// }
+
 function displayLocationInfo(place) {
-  const locationImage = document.getElementById('location-image');
-  const locationTitle = document.getElementById('location-title');
-  const locationRating = document.getElementById('location-rating');
-  const tabContent = document.getElementById('tab-content');
+  const locationImage = tabInfoControlDiv.querySelector('#location-image');
+  const locationTitle = tabInfoControlDiv.querySelector('#location-title');
+  const locationRating = tabInfoControlDiv.querySelector('#location-rating');
+  const tabContent = tabInfoControlDiv.querySelector('#tab-content');
 
   // Configurar imagem, título e classificação
   locationImage.src = place.photos ? place.photos[0].getUrl({ maxWidth: 800, maxHeight: 600 }) : 'default_image_url';
@@ -224,22 +409,22 @@ function displayLocationInfo(place) {
 
   // Conteúdo das abas
   const infoContent = `
-      <h3 class="text-base mb-2 text-gray-600"><b>Informações</b></h3>
+      <h3 class="text-base mb-2" style="color: #065FB9;"><b>Informações</b></h3>
       <div class="flex items-center mb-4">
-        <i class="fas fa-map-marker-alt text-blue-500 mr-2"></i> 
-        <p class="leading-relaxed mb-2"><b class="text-blue-500">Endereço:</b> ${place.formatted_address}</p>
+        <img src="../assets/icons-styles/Icones_mapa-05.png" alt="Ícone de Atrativo" class="inline-block mr-2 mb-2 w-9 h-9">
+        <p class="leading-relaxed mb-2"><b style="color: #3288D7;">Endereço:</b> ${place.formatted_address}</p>
       </div>
       <div class="flex items-center mb-4">
-        <i class="fas fa-phone text-blue-500 mr-2"></i> 
-        <p class="leading-relaxed mb-2"><b class="text-blue-500">Telefone:</b> ${place.formatted_phone_number || 'N/A'}</p>
+        <img src="../assets/icons-styles/Icones_mapa-06.png" alt="Ícone de Atrativo" class="inline-block mr-2 mb-2 w-9 h-9">
+        <p class="leading-relaxed mb-2"><b style="color: #3288D7;">Telefone:</b> ${place.formatted_phone_number || 'N/A'}</p>
       </div>
       <div class="flex items-center mb-4">
-        <i class="fas fa-star text-blue-500 mr-2"></i> 
-        <p class="leading-relaxed mb-2"><b class="text-blue-500">Rating:</b> ${place.rating || 'N/A'}</p>
+        <img src="../assets/icons-styles/Icones_mapa-07.png" alt="Ícone de Atrativo" class="inline-block mr-2 mb-2 w-9 h-9">
+        <p class="leading-relaxed mb-2"><b style="color: #3288D7;">Rating:</b> ${place.rating || 'N/A'}</p>
       </div>
       <div class="flex items-center mb-4">
-        <i class="fas fa-globe text-blue-500 mr-2"></i> 
-        <p class="leading-relaxed mb-2"><b class="text-blue-500">Website:</b> ${place.website ? `<a href="${place.website}" target="_blank" class="text-blue-500 hover:underline">${place.website}</a>` : 'N/A'}</p>
+        <img src="../assets/icons-styles/Icones_mapa-08.png" alt="Ícone de Atrativo" class="inline-block mr-2 mb-2 w-9 h-9">
+        <p class="leading-relaxed mb-2"><b style="color: #3288D7;">Website:</b> ${place.website ? `<a href="${place.website}" target="_blank" class="text-blue-500 hover:underline">${place.website}</a>` : 'N/A'}</p>
       </div>
   `;
 
@@ -263,7 +448,7 @@ function displayLocationInfo(place) {
 
   // Lógica para alternar entre as abas
   window.changeTab = function (tab) {
-    document.querySelectorAll('.tab-button').forEach(button => button.classList.remove('active'));
+    tabInfoControlDiv.querySelectorAll('.tab-button').forEach(button => button.classList.remove('active'));
 
     if (tab === 'info') {
       tabContent.innerHTML = infoContent;
@@ -275,7 +460,7 @@ function displayLocationInfo(place) {
       tabContent.innerHTML = aboutContent;
     }
 
-    document.querySelector(`.tab-button[onclick="changeTab('${tab}')"]`).classList.add('active');
+    tabInfoControlDiv.querySelector(`.tab-button[onclick="changeTab('${tab}')"]`).classList.add('active');
   }
 }
 
@@ -383,8 +568,6 @@ async function getDataFromSheet() {
 async function initMap() {
   getDataFromSheet().then(async values => {
     dadosPlanilha = values;
-
-
     marcadoresPontos = values.filter(m => !m.ancora && !(dadosPlanilha.find(f => f.ancora.toLowerCase() === 'sim' && f.latitude === m.latitude && f.longitude === m.longitude)));
 
     let isSatellite = false;
@@ -437,10 +620,16 @@ async function initMap() {
       mapTypeId: "roadmap",
       tilt: 45,
       mapTypeControl: false,
-      streetViewControl: false
+      streetViewControl: false,
+      fullscreenControl: false,
+      zoomControl: false,
     });
-    demarcarFronteiraBrasil()
-    await createFiltersInMap();
+
+    createCustomFullscreenControl();
+    createCustomZoomControl()
+    demarcarFronteiraBrasil();
+    createFiltersInMap();
+    createTabInfoInMap();
     // montaArrayDeMunicipos();
     // demarcarFronteiraES()
 
@@ -571,9 +760,9 @@ async function initMap() {
     });
 
     //gambiarra de amostragem
-    const checkboxesAtrativos = atrativosControlDiv.querySelectorAll('#atrativos-filter input[type="checkbox"]');
-    checkboxesAtrativos[6].checked = true;
-    updateMapByAtrativos();
+    // const checkboxesAtrativos = atrativosControlDiv.querySelectorAll('#atrativos-filter input[type="checkbox"]');
+    // checkboxesAtrativos[6].checked = true;
+    // updateMapByAtrativos();
   });
 }
 
@@ -583,7 +772,7 @@ function createFilterRegional() {
   regionaisControlDiv.classList.add('filter-icon', 'closed', 'max-h-11', 'rounded-3xl'); // Adiciona a classe 'closed'
   regionaisControlDiv.innerHTML = `
     <label for="regionais" class="block text-sm font-medium text-white cursor-pointer">
-    <img src="../assets/brasil.png" alt="Ícone de Regional" class="inline-block mr-2 w-4 h-4"> Regionais <i class="fa-solid fa-caret-down"></i>
+    <img src="../assets/icons-filtros/Icones_mapa-10.png" alt="Ícone de Regional" class="inline-block mr-2 w-5 h-5"> Regionais <i class="fa-solid fa-caret-down"></i>
     </label>
     <div class="mt-1 options-container"></div>
   `;
@@ -620,14 +809,13 @@ function createFilterRegional() {
   });
 }
 
-// Função para criar o filtro de municípios
 function createFilterMunicipio() {
   municipiosControlDiv = document.createElement('div');
   municipiosControlDiv.id = 'municipios-filter';
   municipiosControlDiv.classList.add('filter-icon', 'closed', 'max-h-11', 'rounded-3xl'); // Adiciona a classe 'closed'
   municipiosControlDiv.innerHTML = `
       <label for="municipios" class="block text-sm font-medium text-white cursor-pointer">
-        <img src="../assets/mapa.png" alt="Ícone de Regional" class="inline-block mr-2 w-4 h-4"> Município <i class="fa-solid fa-caret-down"></i>
+        <img src="../assets/icons-filtros/Icones_mapa-11.png" alt="Ícone de Regional" class="inline-block mr-2 w-5 h-5"> Município <i class="fa-solid fa-caret-down"></i>
       </label>
       <div class="mt-1 options-container max-h-40 overflow-y-auto"></div>
     `;
@@ -646,10 +834,10 @@ function createFilterMunicipio() {
 function createFilterAtrativos() {
   atrativosControlDiv = document.createElement('div');
   atrativosControlDiv.id = 'atrativos-filter';
-  atrativosControlDiv.classList.add('filter-icon', 'rounded-3xl'); // Adiciona a classe 'closed' inicialmente ('closed', 'max-h-11')
+  atrativosControlDiv.classList.add('filter-icon', 'rounded-3xl', 'closed', 'max-h-11'); // Adiciona a classe 'closed' inicialmente ()
   atrativosControlDiv.innerHTML = `
     <label for="atrativos" class="block text-sm font-medium text-white cursor-pointer">
-    <img src="../assets/sinal-de-direcao.png" alt="Ícone de Atrativo" class="inline-block mr-2 w-4 h-4"> Atrativos <i class="fa-solid fa-caret-down"></i>
+    <img src="../assets/icons-filtros/Icones_mapa-12.png" alt="Ícone de Atrativo" class="inline-block mr-2 w-5 h-5"> Atrativos <i class="fa-solid fa-caret-down"></i>
     </label>
     <div class="mt-1 options-container max-h-40 overflow-y-auto text-white"></div>
   `;
@@ -686,8 +874,9 @@ function createFilterAtrativos() {
 
 async function createFiltersInMap() {
   filtrosControlDiv = document.createElement('div');
-  filtrosControlDiv.classList.add('justify-around', 'row', 'flex', 'bg-white', 'rounded-3xl');
+  filtrosControlDiv.classList.add('justify-around', 'row', 'flex', 'bg-white', 'rounded-3xl', 'm-2.5');
   filtrosControlDiv.style.minWidth = '350px';
+
   filtrosControlDiv.id = 'filtros-control';
 
   // Cria os filtros dentro do container de filtros
@@ -697,6 +886,73 @@ async function createFiltersInMap() {
 
   // Adiciona o container de filtros ao mapa
   map.controls[google.maps.ControlPosition.TOP_CENTER].push(filtrosControlDiv);
+}
+
+
+// async function createTabInfoInMap() {
+//   tabInfoControlDiv = document.createElement('div');
+//   tabInfoControlDiv.classList.add('justify-around', 'row', 'flex', 'bg-white', 'rounded-3xl', 'm-2.5');
+//   tabInfoControlDiv.style.width = '385px';
+
+//   tabInfoControlDiv.innerHTML = `
+//       <div id="location-info" class="p-4 bg-white">
+//       <div class="bg-gradient p-4 rounded-lg shadow-md max-w-sm">
+//           <img id="location-image" src="" alt="Local Image" class="w-full h-64 object-cover rounded-t-lg">
+//           <div class="absolute bottom-0 left-0 bg-gray-800 bg-opacity-50 text-white p-4">
+//             <h2 id="location-title" class="text-xl font-bold"></h2>
+//             <p id="location-rating" class="text-yellow-400"></p>
+//           </div>
+//         </div>
+//         <div id="tabs" class="flex border-b mt-4">
+//           <button class="tab-button active bg-white border-none p-2 cursor-pointer rounded-t-md mr-2"
+//             onclick="changeTab('info')">Visão geral</button>
+//           <button class="tab-button bg-white border-none p-2 cursor-pointer rounded-t-md mr-2"
+//             onclick="changeTab('precos')">Preços</button>
+//           <button class="tab-button bg-white border-none p-2 cursor-pointer rounded-t-md mr-2"
+//             onclick="changeTab('reviews')">Avaliações</button>
+//           <button class="tab-button bg-white border-none p-2 cursor-pointer rounded-t-md"
+//             onclick="changeTab('sobre')">Sobre</button>
+//         </div>
+//         <div id="tab-content" class="p-4">
+//           <!-- Conteúdo das abas será inserido aqui -->
+//         </div>
+//       </div>
+//   `;
+
+//   // Adiciona o container de filtros ao mapa
+//   map.controls[google.maps.ControlPosition.TOP_LEFT].push(tabInfoControlDiv);
+// }
+async function createTabInfoInMap() {
+  tabInfoControlDiv = document.createElement('div');
+  tabInfoControlDiv.classList.add('justify-around', 'row', 'flex', 'bg-white', 'rounded-3xl', 'm-2.5');
+  tabInfoControlDiv.style.width = '385px';
+
+  tabInfoControlDiv.innerHTML = `
+      <div class="bg-gradient p-4 rounded-lg shadow-md">
+        <img id="location-image" src="" alt="Imagem do Local" class="w-full h-48 object-cover rounded-md mb-4">
+
+         
+          <div class="flex items-center justify-between mb-2">
+              <h2 id="location-title" class="text-xl font-bold" style="color: #065FB9;"></h2>
+              <div class="flex items-center">
+                  <span id="location-rating" class="text-yellow-400 text-lg mr-1"></span>
+              </div>
+          </div>
+
+        <div id="tabs" class="flex space-x-2 mb-4">
+              <button style="color: #65C4FF;" class="tab-button bg-white px-3 py-1 rounded-md active" onclick="changeTab('info')">Visão geral</button>
+              <button style="color: #65C4FF;" class="tab-button bg-white px-3 py-1 rounded-md" onclick="changeTab('photos')">Fotos</button>
+              <button style="color: #65C4FF;" class="tab-button bg-white px-3 py-1 rounded-md" onclick="changeTab('reviews')">Avaliações</button>
+          </div>
+
+        <div id="tab-content" class="p-4">
+          <!-- Conteúdo das abas será inserido aqui -->
+        </div>
+      </div>
+  `;
+
+  // Adiciona o container de filtros ao mapa
+  map.controls[google.maps.ControlPosition.TOP_LEFT].push(tabInfoControlDiv);
 }
 
 

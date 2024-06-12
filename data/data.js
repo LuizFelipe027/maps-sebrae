@@ -7121,7 +7121,7 @@ let marcadoresCidade = [
   },
 ];
 
-const api_key = 'AIzaSyDE8EhxgBC6_4Z64dTV7bZ-z6CY09KJ5DI'
+const api_key = 'AIzaSyAHhb1kPzpi0_AjG9zLW1_AQkZpi30PCqA'
 const sheetId = '1fAa7t3hpYsr9km0RCJhpCW2nlgarcEIWNs6j3ND6Jjo';
 const range = 'Pontos%20Turísticos!1:1000';
 

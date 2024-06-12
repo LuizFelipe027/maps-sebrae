@@ -2,7 +2,7 @@ let marcadoresPontos = [];
 let marcadoresFiltrados = [];
 let dadosPlanilha;
 
-const apikey = "AIzaSyDE8EhxgBC6_4Z64dTV7bZ-z6CY09KJ5DI";
+const apikey = "AIzaSyAHhb1kPzpi0_AjG9zLW1_AQkZpi30PCqA";
 let map;
 let service;
 
@@ -213,13 +213,13 @@ function getIconSize(zoomLevel) {
 
 async function criarMarcadoresPersonalizados() {
   const currentZoomLevel = map.getZoom();
-  for (const local of dadosPlanilha) {
+  await Promise.all(dadosPlanilha.map(async (local) => {
     if (local.ancora.toLowerCase() === 'sim') {
-      let pathIconAncora = '../assets/google-maps.png';
-      let iconPath = `../assets/icons-municipios/${removeCharacterAndSpace(local.pathicon)}`;
-      if (await fileExists(iconPath)) {
-        pathIconAncora = iconPath;
-      }
+      let pathIconAncora = `../assets/icons-municipios/${removeCharacterAndSpace(local.pathicon)}`;
+      // let iconPath = `../assets/icons-municipios/${removeCharacterAndSpace(local.pathicon)}`;
+      // if (await fileExists(iconPath)) {
+      //   pathIconAncora = iconPath;
+      // }
 
       const iconSize = getIconSize(currentZoomLevel);
       local.icon = new google.maps.MarkerImage(
@@ -238,7 +238,7 @@ async function criarMarcadoresPersonalizados() {
         new google.maps.Size(24, 32)
       );
     }
-  }
+  }));
 }
 
 function fileExists(url) {
@@ -269,7 +269,7 @@ function markPoinstFiltered(regionaisSelecionadas) {
     });
 
     marcador.addListener("click", () => {
-      if (local.place_id) {
+      if (local.place_id || local.ancora.toLowerCase() === 'sim') {
         getPlaceDetails(local);
       } else {
         displayCustomLocationInfo(local);
@@ -292,7 +292,7 @@ function markAnchorPoints() {
       });
 
       marcador.addListener("click", () => {
-        if (local.place_id) {
+        if (local.place_id || local.ancora.toLowerCase() === 'sim') {
           getPlaceDetails(local);
         } else {
           displayCustomLocationInfo(local);
@@ -327,75 +327,6 @@ async function removeMarkers(zoomLevel) {
   }
 }
 
-// function displayLocationInfo(place) {
-//   console.log(tabInfoControlDiv)
-//   const locationImage = tabInfoControlDiv.getElementById('location-image');
-//   const locationTitle = tabInfoControlDiv.getElementById('location-title');
-//   const locationRating = tabInfoControlDiv.getElementById('location-rating');
-//   const tabContent = tabInfoControlDiv.getElementById('tab-content');
-
-//   // Configurar imagem, título e classificação
-//   locationImage.src = place.photos ? place.photos[0].getUrl({ maxWidth: 800, maxHeight: 600 }) : 'default_image_url';
-//   locationTitle.textContent = place.name;
-//   locationRating.innerHTML = `${place.rating || 'N/A'} <i class="fas fa-star text-yellow-400"></i> (${place.user_ratings_total || 0})`;
-
-//   // Conteúdo das abas
-//   const infoContent = `
-//       <h3 class="text-base mb-2 text-gray-600"><b>Informações</b></h3>
-//       <div class="flex items-center mb-4">
-//         <i class="fas fa-map-marker-alt text-blue-500 mr-2"></i> 
-//         <p class="leading-relaxed mb-2"><b class="text-blue-500">Endereço:</b> ${place.formatted_address}</p>
-//       </div>
-//       <div class="flex items-center mb-4">
-//         <i class="fas fa-phone text-blue-500 mr-2"></i> 
-//         <p class="leading-relaxed mb-2"><b class="text-blue-500">Telefone:</b> ${place.formatted_phone_number || 'N/A'}</p>
-//       </div>
-//       <div class="flex items-center mb-4">
-//         <i class="fas fa-star text-blue-500 mr-2"></i> 
-//         <p class="leading-relaxed mb-2"><b class="text-blue-500">Rating:</b> ${place.rating || 'N/A'}</p>
-//       </div>
-//       <div class="flex items-center mb-4">
-//         <i class="fas fa-globe text-blue-500 mr-2"></i> 
-//         <p class="leading-relaxed mb-2"><b class="text-blue-500">Website:</b> ${place.website ? `<a href="${place.website}" target="_blank" class="text-blue-500 hover:underline">${place.website}</a>` : 'N/A'}</p>
-//       </div>
-//   `;
-
-//   const pricesContent = `
-//       <h3 class="text-base mb-2 text-gray-600">Preços</h3>
-//       <!-- Adicionar conteúdo relacionado aos preços aqui -->
-//   `;
-
-//   const reviewsContent = `
-//       <h3 class="text-base mb-2 text-gray-600">Avaliações</h3>
-//       ${place.reviews ? place.reviews.map(review => `<p class="leading-relaxed mb-2">${review.text}</p>`).join('') : 'N/A'}
-//   `;
-
-//   const aboutContent = `
-//       <h3 class="text-base mb-2 text-gray-600">Sobre</h3>
-//       <!-- Adicionar conteúdo relacionado ao sobre aqui -->
-//   `;
-
-//   // Inicialmente, exibir o conteúdo da aba "Visão geral"
-//   tabContent.innerHTML = infoContent;
-
-//   // Lógica para alternar entre as abas
-//   window.changeTab = function (tab) {
-//     tabInfoControlDiv.querySelectorAll('.tab-button').forEach(button => button.classList.remove('active'));
-
-//     if (tab === 'info') {
-//       tabContent.innerHTML = infoContent;
-//     } else if (tab === 'precos') {
-//       tabContent.innerHTML = pricesContent;
-//     } else if (tab === 'reviews') {
-//       tabContent.innerHTML = reviewsContent;
-//     } else if (tab === 'sobre') {
-//       tabContent.innerHTML = aboutContent;
-//     }
-
-//     tabInfoControlDiv.querySelector(`.tab-button[onclick="changeTab('${tab}')"]`).classList.add('active');
-//   }
-// }
-
 function displayLocationInfo(place) {
 
   tabInfoControlDiv.innerHTML = `
@@ -427,11 +358,12 @@ function displayLocationInfo(place) {
   const tabContent = tabInfoControlDiv.querySelector('#tab-content');
 
   // Configurar imagem, título e classificação
-  locationImage.src = place.photos ? place.photos[0].getUrl({ maxWidth: 800, maxHeight: 600 }) : 'default_image_url';
-  locationTitle.textContent = place.name;
+  locationImage.src = place.photos ? place.photos[0].getUrl({ maxWidth: 800, maxHeight: 600 }) : place?.imagem_para_quando_nao_tiver_gmn || '';
+  locationTitle.textContent = place.nome_no_mapa || place.name || place.ponto;
   locationRating.innerHTML = `${place.rating || 'N/A'} <i class="fas fa-star text-yellow-400"></i> (${place.user_ratings_total || 0})`;
 
   // Conteúdo das abas
+  let linkWebSite = place.website ? place.website : place.link_para_informacoes_quando_nao_tiver_gmn || null;
   const infoContent = `
       <h3 class="text-base mb-2" style="color: #065FB9;"><b>Informações</b></h3>
       <div class="flex items-center mb-4">
@@ -448,7 +380,7 @@ function displayLocationInfo(place) {
       </div>
       <div class="flex items-center mb-4">
         <img src="../assets/icons-styles/Icones_mapa-08.png" alt="Ícone de Atrativo" class="inline-block mr-2 mb-2 w-9 h-9">
-        <p class="leading-relaxed mb-2"><b style="color: #3288D7;">Website:</b> ${place.website ? `<a href="${place.website}" target="_blank" class="text-blue-500 hover:underline">${place.website}</a>` : 'N/A'}</p>
+        <p class="leading-relaxed mb-2"><b style="color: #3288D7;">Website:</b> ${linkWebSite ? `<a href="${linkWebSite}" target="_blank" class="text-blue-500 hover:underline">${linkWebSite}</a>` : 'N/A'}</p>
       </div>
   `;
 
@@ -515,6 +447,7 @@ function changeTab(tabId) {
 
 function getPlaceDetails(local) {
   if (!local.place_id) {
+    displayLocationInfo({ ...local });
     //console.error('Invalid placeId:', local.place_id);
     return;
   }
@@ -631,6 +564,11 @@ async function initMap() {
         elementType: "geometry",
         stylers: [{ visibility: "off" }],
       },
+      {
+        featureType: 'road',
+        elementType: 'labels',
+        stylers: [{ visibility: 'off' }]
+      }
       // {
       //   featureType: "landscape",
       //   stylers: [{ visibility: "off" }],
@@ -654,8 +592,9 @@ async function initMap() {
     demarcarFronteiraBrasil();
     createFiltersInMap();
     createTabInfoInMap();
+
     // montaArrayDeMunicipos();
-    // demarcarFronteiraES()
+    // demarcarFronteiraES();
 
     service = new google.maps.places.PlacesService(map);
 
@@ -695,7 +634,6 @@ async function initMap() {
 
       const currentZoomLevel = map.getZoom();
       if (currentZoomLevel > 10) {
-
         map.setOptions({
           styles: [
             ...stylesMap,
@@ -709,6 +647,11 @@ async function initMap() {
               elementType: "geometry",
               stylers: [{ visibility: "on" }],
             },
+            {
+              featureType: 'road',
+              elementType: 'labels',
+              stylers: [{ visibility: 'on' }]
+            }
           ]
         });
       } else {
@@ -733,7 +676,9 @@ async function initMap() {
         // if (currentZoomLevel <= 7) {
         // criarMarcadorES(); // Adicionar o marcador do Espírito Santo
         // } else
-        if (currentZoomLevel <= 12) {
+        if (currentZoomLevel <= 5) {
+          removeMarkers(0);
+        } else if (currentZoomLevel <= 12) {
           for (const local of dadosPlanilha) {
             if (local.ancora.toLowerCase() === 'sim') {
               const iconSize = getIconSize(currentZoomLevel);
@@ -802,7 +747,14 @@ function createFilterRegional() {
   filtrosControlDiv.appendChild(regionaisControlDiv);
 
   const regionaisContainer = regionaisControlDiv.querySelector('.options-container');
-  const regionais = ["caparao", "central", "metropolitana", "norte", "serrana", "sul"];
+  const regionais = [
+    { codigo: "caparao", nome: "Caparó" },
+    { codigo: "central", nome: "Central" },
+    { codigo: "metropolitana", nome: "Metropolitana" },
+    { codigo: "norte", nome: "Norte" },
+    { codigo: "serrana", nome: "Serrana" },
+    { codigo: "sul", nome: "Sul" },
+  ];
 
   regionais.forEach(regional => {
     // Cria o container do checkbox
@@ -812,8 +764,8 @@ function createFilterRegional() {
     // Cria o input checkbox
     const checkbox = document.createElement('input');
     checkbox.type = 'checkbox';
-    checkbox.id = regional;
-    checkbox.value = regional;
+    checkbox.id = regional.codigo;
+    checkbox.value = regional.codigo;
     checkbox.addEventListener('change', updateMapByRegional);
 
     // Cria o elemento visual do checkbox
@@ -823,7 +775,7 @@ function createFilterRegional() {
     // Adiciona os elementos ao container
     checkboxContainer.appendChild(checkbox);
     checkboxContainer.appendChild(checkmark);
-    checkboxContainer.appendChild(document.createTextNode(regional));
+    checkboxContainer.appendChild(document.createTextNode(regional.nome));
 
     // Adiciona o container ao container principal
     regionaisContainer.appendChild(checkboxContainer);
@@ -933,7 +885,7 @@ async function createFiltersInMap() {
 async function createTabInfoInMap() {
   tabInfoControlDiv = document.createElement('div');
   tabInfoControlDiv.classList.add('bg-white', 'rounded-3xl', 'p-6', 'shadow-lg', 'm-2.5');
-  tabInfoControlDiv.style.width = '385px';
+  tabInfoControlDiv.style.width = '49vh';
 
   tabInfoControlDiv.innerHTML = `
       <div class="text-left">

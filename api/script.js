@@ -196,18 +196,12 @@ function demarcarFronteiraES() {
 }
 
 function getIconSize(zoomLevel) {
-  const maxIconSize = 48;
-  return maxIconSize + (zoomLevel * 4);
-  const minIconSize = 24; // Metade do tamanho máximo
-  if (zoomLevel <= 10) {
-    return minIconSize;
-  } else {
-    // const scale = (zoomLevel - 7) / (14 - 7); // Ajuste os valores de zoom conforme necessário
-    // const iconSize = maxIconSize - ((maxIconSize - minIconSize) * scale);
-    // return Math.max(minIconSize, Math.min(maxIconSize, iconSize));
-    return maxIconSize + (zoomLevel * 4);
+  if (zoomLevel >= 12) {
+    console.log((zoomLevel * 10) * 2)
+    return (zoomLevel * 10) * 2;
   }
 
+  return (zoomLevel * 10)
 
 }
 
@@ -215,23 +209,24 @@ async function criarMarcadoresPersonalizados() {
   const currentZoomLevel = map.getZoom();
   await Promise.all(dadosPlanilha.map(async (local) => {
     if (local.ancora.toLowerCase() === 'sim') {
-      let pathIconAncora = `../assets/icons-municipios/${removeCharacterAndSpace(local.pathicon)}`;
-      // let iconPath = `../assets/icons-municipios/${removeCharacterAndSpace(local.pathicon)}`;
-      // if (await fileExists(iconPath)) {
-      //   pathIconAncora = iconPath;
-      // }
+      // let pathIconAncora = `../assets/icons-municipios/${removeCharacterAndSpace(local.pathicon)}`;
+      let pathIconAncora = ``;
+      let iconPath = `../assets/icons-municipios/${removeCharacterAndSpace(local.pathicon)}`;
+      if (await fileExists(iconPath)) {
+        pathIconAncora = iconPath;
+      }
 
-      const iconSize = getIconSize(currentZoomLevel);
+      const iconSize = 70 || getIconSize(currentZoomLevel);
       local.icon = new google.maps.MarkerImage(
         pathIconAncora,
         new google.maps.Size(iconSize, iconSize),
         new google.maps.Point(0, 0),
-        new google.maps.Point(iconSize / 2, iconSize),
+        new google.maps.Point(iconSize / 2, iconSize - 24),
         new google.maps.Size(iconSize, iconSize)
       );
     } else {
       local.icon = new google.maps.MarkerImage(
-        '../assets/pin.png',
+        '../assets/placeholder.png',
         new google.maps.Size(24, 32),
         new google.maps.Point(0, 0),
         new google.maps.Point(12, 32),
@@ -259,7 +254,7 @@ function fileExists(url) {
   });
 }
 
-function markPoinstFiltered(regionaisSelecionadas) {
+function markPoinstFiltered() {
   for (const local of marcadoresFiltrados) {
     const latLng = new google.maps.LatLng(local.latitude, local.longitude);
     const marcador = new google.maps.Marker({
@@ -327,8 +322,8 @@ async function removeMarkers(zoomLevel) {
   }
 }
 
-function displayLocationInfo(place) {
-
+async function displayLocationInfo(place) {
+  // await showHiddenTabInfo(true);
   tabInfoControlDiv.innerHTML = `
       
         <img id="location-image" src="" alt="Imagem do Local" class="w-full h-48 object-cover rounded-md mb-4">
@@ -364,7 +359,7 @@ function displayLocationInfo(place) {
 
   // Conteúdo das abas
   let linkWebSite = place.website ? place.website : place.link_para_informacoes_quando_nao_tiver_gmn || null;
-  const infoContent = `
+  let infoContent = `
       <h3 class="text-base mb-2" style="color: #065FB9;"><b>Informações</b></h3>
       <div class="flex items-center mb-4">
         <img src="../assets/icons-styles/Icones_mapa-05.png" alt="Ícone de Atrativo" class="inline-block mr-2 mb-2 w-9 h-9">
@@ -383,6 +378,23 @@ function displayLocationInfo(place) {
         <p class="leading-relaxed mb-2"><b style="color: #3288D7;">Website:</b> ${linkWebSite ? `<a href="${linkWebSite}" target="_blank" class="text-blue-500 hover:underline">${linkWebSite}</a>` : 'N/A'}</p>
       </div>
   `;
+
+  infoContent += `
+      <div class="flex items-center mb-4">
+        <img src="../assets/icons-styles/Icones_mapa-07.png" alt="Ícone de Atrativo" class="inline-block mr-2 mb-2 w-9 h-9">
+        <p class="leading-relaxed mb-2"><b style="color: #3288D7;">Atrativo:</b> `
+
+  if (place.segmento) {
+    infoContent += `${place.segmento}`
+  }
+  if (place.segmento_2) {
+    infoContent += `, ${place.segmento_2}`
+  }
+  if (place.segmento_3) {
+    infoContent += ` e ${place.segmento_3}`
+  }
+
+  infoContent += `</p></div>`
 
   const pricesContent = `
       <h3 class="text-base mb-2 text-gray-600">Preços</h3>
@@ -421,17 +433,18 @@ function displayLocationInfo(place) {
 }
 
 function displayCustomLocationInfo(place) {
+  // showHiddenTabInfo(true);
   const tabContent = document.getElementById('tab-content');
   const tabs = document.getElementById('tabs');
   tabs.innerHTML = '';
   tabContent.innerHTML = `
-      <div class="tab-pane active" id="info">
-          <h3 class="text-base mb-2 text-gray-600"><b>Informações</b></h3>`;
+        <div class="tab-pane active" id="info">
+            <h3 class="text-base mb-2 text-gray-600"><b>Informações</b></h3>`;
   tabContent.innerHTML += place.ponto ? `<p class="leading-relaxed mb-2"><b>Nome:</b> ${place.ponto}</p>` : '';
   tabContent.innerHTML += place.cidade ? `<p class="leading-relaxed mb-2"><b>Cidade:</b> ${place.cidade}</p>` : '';
   tabContent.innerHTML += `<p class="leading-relaxed mb-2"><b>País:</b> ${place.pais}</p>
-      </div>
-  `;
+        </div>
+    `;
 }
 
 function changeTab(tabId) {
@@ -558,6 +571,11 @@ async function initMap() {
         featureType: "poi",
         elementType: "labels",
         stylers: [{ visibility: "off" }],
+      },
+      {
+        featureType: "landscape.natural",
+        elementType: "labels.icon",
+        stylers: [{ visibility: "off" }]
       },
       {
         featureType: "road.highway",
@@ -723,6 +741,18 @@ async function initMap() {
           }
         }
         // }
+      } else {
+        for (const local of marcadoresFiltrados) {
+          const iconSize = getIconSize(currentZoomLevel);
+          local.marcador.setMap(map);
+          local.marcador.setIcon(new google.maps.MarkerImage(
+            local.icon.url,
+            new google.maps.Size(iconSize, iconSize),
+            new google.maps.Point(0, 0),
+            new google.maps.Point(iconSize / 2, iconSize / 2),
+            new google.maps.Size(iconSize, iconSize)
+          ));
+        }
       }
     });
 
@@ -907,6 +937,18 @@ async function createTabInfoInMap() {
   map.controls[google.maps.ControlPosition.TOP_LEFT].push(tabInfoControlDiv);
 }
 
+async function showHiddenTabInfo(ativaTabInfo) {
+  tabInfoControlDiv.style.display = '';
+
+  if (tabInfoControlDiv.style.display === 'none' && ativaTabInfo) {
+    // Mostrar o elemento
+    tabInfoControlDiv.style.removeProperty('display');
+  } else {
+    // Ocultar o elemento
+    tabInfoControlDiv.style.display = 'none';
+  }
+}
+
 // async function createTabInfoInMap() {
 
 //   tabInfoControlDiv.innerHTML = `
@@ -940,6 +982,7 @@ async function createTabInfoInMap() {
 ////////////////////////////// TRATAMENTO SEGMENTOS //////////////////////////////
 
 async function updateMapByAtrativos() {
+  // showHiddenTabInfo(false);
   const checkboxes = atrativosControlDiv.querySelectorAll('#atrativos-filter input[type="checkbox"]');
   const atrativosSelecionadas = Array.from(checkboxes)
     .filter(checkbox => checkbox.checked)
@@ -953,7 +996,11 @@ async function updateMapByAtrativos() {
   await removeMarkers(0);
   for (const local of dadosPlanilha) {
     for (const atrativo of atrativosSelecionadas) {
-      if (removeCharacterAndSpace(local.segmento) === removeCharacterAndSpace(atrativo)) {
+      if (
+        removeCharacterAndSpace(local.segmento) === removeCharacterAndSpace(atrativo)
+        || (local.segmento_2 && removeCharacterAndSpace(local.segmento_2) === removeCharacterAndSpace(atrativo))
+        || (local.segmento_3 && removeCharacterAndSpace(local.segmento_3) === removeCharacterAndSpace(atrativo))
+      ) {
         marcadoresFiltrados.push(local);
       }
     }
@@ -1018,7 +1065,7 @@ function montaArrayDeMunicipos(regionaisSelecionadas) {
 }
 
 async function updateMapByMunicipio() {
-
+  // showHiddenTabInfo(false);
   const checkboxes = municipiosControlDiv.querySelectorAll('#municipios-filter input[type="checkbox"]');
   const municipiosSelecionados = Array.from(checkboxes)
     .filter(checkbox => checkbox.checked)
@@ -1067,6 +1114,9 @@ function removerDemarcacoesAtuais() {
 }
 
 async function updateMapByRegional() {
+
+  // showHiddenTabInfo(false);
+
   filtrosUtilizados.regional = true;
   const zoomLevel = map.getZoom();
   // Remove demarcações atuais

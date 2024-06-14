@@ -1,4 +1,4 @@
-let marcadoresPontos = [];
+// let marcadoresPontos = [];
 let marcadoresFiltrados = [];
 let dadosPlanilha;
 
@@ -197,7 +197,6 @@ function demarcarFronteiraES() {
 
 function getIconSize(zoomLevel) {
   if (zoomLevel >= 12) {
-    console.log((zoomLevel * 10) * 2)
     return (zoomLevel * 10) * 2;
   }
 
@@ -216,7 +215,7 @@ async function criarMarcadoresPersonalizados() {
         pathIconAncora = iconPath;
       }
 
-      const iconSize = 70 || getIconSize(currentZoomLevel);
+      const iconSize = getIconSize(currentZoomLevel);
       local.icon = new google.maps.MarkerImage(
         pathIconAncora,
         new google.maps.Size(iconSize, iconSize),
@@ -224,15 +223,16 @@ async function criarMarcadoresPersonalizados() {
         new google.maps.Point(iconSize / 2, iconSize - 24),
         new google.maps.Size(iconSize, iconSize)
       );
-    } else {
-      local.icon = new google.maps.MarkerImage(
-        '../assets/placeholder.png',
-        new google.maps.Size(24, 32),
-        new google.maps.Point(0, 0),
-        new google.maps.Point(12, 32),
-        new google.maps.Size(24, 32)
-      );
     }
+    // else {
+    //   local.icon = new google.maps.MarkerImage(
+    //     '../assets/placeholder.png',
+    //     new google.maps.Size(24, 32),
+    //     new google.maps.Point(0, 0),
+    //     new google.maps.Point(12, 32),
+    //     new google.maps.Size(24, 32)
+    //   );
+    // }
   }));
 }
 
@@ -311,42 +311,40 @@ async function removeMarkers(zoomLevel) {
         local.marcador.setMap(null);
       }
     }
-  } else {
-    removerMarcadorES(); // Remover o marcador do Espírito Santo
   }
 
-  for (const local of dadosPlanilha) {
-    if (local.marcador && (!local.ancora || local?.ancora.toLowerCase() !== 'sim')) {
-      local.marcador.setMap(null);
-    }
-  }
+
+  // else {
+  //   removerMarcadorES(); // Remover o marcador do Espírito Santo
+  // }
+
+  // for (const local of dadosPlanilha) {
+  //   if (local.marcador && (!local.ancora || local?.ancora.toLowerCase() !== 'sim')) {
+  //     local.marcador.setMap(null);
+  //   }
+  // }
 }
 
 async function displayLocationInfo(place) {
-  // await showHiddenTabInfo(true);
+  await showHiddenTabInfo(true);
   tabInfoControlDiv.innerHTML = `
-      
-        <img id="location-image" src="" alt="Imagem do Local" class="w-full h-48 object-cover rounded-md mb-4">
-
-         
-          <div class="flex items-center justify-between mb-2">
-              <h2 id="location-title" class="text-xl font-bold" style="color: #065FB9;"></h2>
-              <div class="flex items-center">
-                  <span id="location-rating" class="text-yellow-400 text-lg mr-1"></span>
-              </div>
-          </div>
-
-        <div id="tabs" class="flex space-x-2 mb-4">
-              <button style="color: #65C4FF;" class="tab-button bg-white px-3 py-1 rounded-md active" onclick="changeTab('info')">Visão geral</button>
-              <button style="color: #65C4FF;" class="tab-button bg-white px-3 py-1 rounded-md" onclick="changeTab('photos')">Fotos</button>
-              <button style="color: #65C4FF;" class="tab-button bg-white px-3 py-1 rounded-md" onclick="changeTab('reviews')">Avaliações</button>
-          </div>
-
-        <div id="tab-content" class="p-4">
-          <!-- Conteúdo das abas será inserido aqui -->
-        </div>
-      
+    <img id="location-image" src="" alt="Imagem do Local" class="w-full h-48 object-cover rounded-md mb-4">
+    <div class="flex items-center justify-between mb-2">
+      <h2 id="location-title" class="text-xl font-bold" style="color: #065FB9;"></h2>
+      <div class="flex items-center">
+        <span id="location-rating" class="text-yellow-400 text-lg mr-1"></span>
+      </div>
+    </div>
+    <div id="tabs" class="flex space-x-2 mb-4">
+      <button style="color: #65C4FF;" class="tab-button bg-white px-3 py-1 rounded-md active" onclick="changeTab('info')">Visão geral</button>
+      <button style="color: #65C4FF;" class="tab-button bg-white px-3 py-1 rounded-md" onclick="changeTab('photos')">Fotos</button>
+      <button style="color: #65C4FF;" class="tab-button bg-white px-3 py-1 rounded-md" onclick="changeTab('reviews')">Avaliações</button>
+    </div>
+    <div id="tab-content" class="p-4">
+      <!-- Conteúdo das abas será inserido aqui -->
+    </div>
   `;
+
   const locationImage = tabInfoControlDiv.querySelector('#location-image');
   const locationTitle = tabInfoControlDiv.querySelector('#location-title');
   const locationRating = tabInfoControlDiv.querySelector('#location-rating');
@@ -355,60 +353,63 @@ async function displayLocationInfo(place) {
   // Configurar imagem, título e classificação
   locationImage.src = place.photos ? place.photos[0].getUrl({ maxWidth: 800, maxHeight: 600 }) : place?.imagem_para_quando_nao_tiver_gmn || '';
   locationTitle.textContent = place.nome_no_mapa || place.name || place.ponto;
-  locationRating.innerHTML = `${place.rating || 'N/A'} <i class="fas fa-star text-yellow-400"></i> (${place.user_ratings_total || 0})`;
+  if (place.rating) {
+    locationRating.innerHTML = `${place.rating || 'N/A'} <i class="fas fa-star text-yellow-400"></i> (${place.user_ratings_total || 0})`;
+  }
 
   // Conteúdo das abas
   let linkWebSite = place.website ? place.website : place.link_para_informacoes_quando_nao_tiver_gmn || null;
   let infoContent = `
-      <h3 class="text-base mb-2" style="color: #065FB9;"><b>Informações</b></h3>
-      <div class="flex items-center mb-4">
-        <img src="../assets/icons-styles/Icones_mapa-05.png" alt="Ícone de Atrativo" class="inline-block mr-2 mb-2 w-9 h-9">
-        <p class="leading-relaxed mb-2"><b style="color: #3288D7;">Endereço:</b> ${place.formatted_address}</p>
-      </div>
-      <div class="flex items-center mb-4">
-        <img src="../assets/icons-styles/Icones_mapa-06.png" alt="Ícone de Atrativo" class="inline-block mr-2 mb-2 w-9 h-9">
-        <p class="leading-relaxed mb-2"><b style="color: #3288D7;">Telefone:</b> ${place.formatted_phone_number || 'N/A'}</p>
-      </div>
-      <div class="flex items-center mb-4">
-        <img src="../assets/icons-styles/Icones_mapa-07.png" alt="Ícone de Atrativo" class="inline-block mr-2 mb-2 w-9 h-9">
-        <p class="leading-relaxed mb-2"><b style="color: #3288D7;">Rating:</b> ${place.rating || 'N/A'}</p>
-      </div>
-      <div class="flex items-center mb-4">
-        <img src="../assets/icons-styles/Icones_mapa-08.png" alt="Ícone de Atrativo" class="inline-block mr-2 mb-2 w-9 h-9">
-        <p class="leading-relaxed mb-2"><b style="color: #3288D7;">Website:</b> ${linkWebSite ? `<a href="${linkWebSite}" target="_blank" class="text-blue-500 hover:underline">${linkWebSite}</a>` : 'N/A'}</p>
-      </div>
+    <h3 class="text-base mb-2" style="color: #065FB9;"><b>Informações</b></h3>
   `;
+
+  if (place.formatted_address) {
+    infoContent += `<div class="flex items-center mb-4">
+      <img src="../assets/icons-styles/Icones_mapa-05.png" alt="Ícone de Atrativo" class="inline-block mr-2 mb-2 w-9 h-9">
+      <p class="leading-relaxed mb-2"><b style="color: #3288D7;">Endereço:</b> ${place.formatted_address}</p>
+    </div>`;
+  }
+
+  if (place.formatted_phone_number) {
+    infoContent += `<div class="flex items-center mb-4">
+      <img src="../assets/icons-styles/Icones_mapa-06.png" alt="Ícone de Atrativo" class="inline-block mr-2 mb-2 w-9 h-9">
+      <p class="leading-relaxed mb-2"><b style="color: #3288D7;">Telefone:</b> ${place.formatted_phone_number || 'N/A'}</p>
+    </div>`;
+  }
+
+  if (place.rating) {
+    infoContent += `<div class="flex items-center mb-4">
+      <img src="../assets/icons-styles/Icones_mapa-07.png" alt="Ícone de Atrativo" class="inline-block mr-2 mb-2 w-9 h-9">
+      <p class="leading-relaxed mb-2"><b style="color: #3288D7;">Rating:</b> ${place.rating || 'N/A'}</p>
+    </div>`;
+  }
+
+  if (linkWebSite) {
+    infoContent += `<div class="flex items-center mb-4">
+      <img src="../assets/icons-styles/Icones_mapa-08.png" alt="Ícone de Atrativo" class="inline-block mr-2 mb-2 w-9 h-9">
+      <p class="leading-relaxed mb-2 truncate"><b style="color: #3288D7;">Website:</b> ${linkWebSite ? `<a href="${linkWebSite}" target="_blank" class="text-blue-500 hover:underline">${linkWebSite}</a>` : 'N/A'}</p>
+    </div>`;
+  }
 
   infoContent += `
-      <div class="flex items-center mb-4">
-        <img src="../assets/icons-styles/Icones_mapa-07.png" alt="Ícone de Atrativo" class="inline-block mr-2 mb-2 w-9 h-9">
-        <p class="leading-relaxed mb-2"><b style="color: #3288D7;">Atrativo:</b> `
-
+    <div class="flex items-center mb-4">
+      <img src="../assets/icons-styles/Icones_mapa-07.png" alt="Ícone de Atrativo" class="inline-block mr-2 mb-2 w-9 h-9">
+      <p class="leading-relaxed mb-2"><b style="color: #3288D7;">Atrativo:</b> `;
   if (place.segmento) {
-    infoContent += `${place.segmento}`
+    infoContent += `${place.segmento}`;
   }
   if (place.segmento_2) {
-    infoContent += `, ${place.segmento_2}`
+    infoContent += `, ${place.segmento_2}`;
   }
   if (place.segmento_3) {
-    infoContent += ` e ${place.segmento_3}`
+    infoContent += ` e ${place.segmento_3}`;
   }
 
-  infoContent += `</p></div>`
-
-  const pricesContent = `
-      <h3 class="text-base mb-2 text-gray-600">Preços</h3>
-      <!-- Adicionar conteúdo relacionado aos preços aqui -->
-  `;
+  infoContent += `</p></div>`;
 
   const reviewsContent = `
-      <h3 class="text-base mb-2 text-gray-600">Avaliações</h3>
-      ${place.reviews ? place.reviews.map(review => `<p class="leading-relaxed mb-2">${review.text}</p>`).join('') : 'N/A'}
-  `;
-
-  const aboutContent = `
-      <h3 class="text-base mb-2 text-gray-600">Sobre</h3>
-      <!-- Adicionar conteúdo relacionado ao sobre aqui -->
+    <h3 class="text-base mb-2" style="color: #065FB9;"><b>Avaliações</b></h3>
+    ${place.reviews ? place.reviews.map(review => `<p class="leading-relaxed mb-2">${review.text}</p>`).join('') : 'N/A'}
   `;
 
   // Inicialmente, exibir o conteúdo da aba "Visão geral"
@@ -420,20 +421,17 @@ async function displayLocationInfo(place) {
 
     if (tab === 'info') {
       tabContent.innerHTML = infoContent;
-    } else if (tab === 'precos') {
-      tabContent.innerHTML = pricesContent;
     } else if (tab === 'reviews') {
       tabContent.innerHTML = reviewsContent;
-    } else if (tab === 'sobre') {
-      tabContent.innerHTML = aboutContent;
     }
 
     tabInfoControlDiv.querySelector(`.tab-button[onclick="changeTab('${tab}')"]`).classList.add('active');
   }
 }
 
-function displayCustomLocationInfo(place) {
-  // showHiddenTabInfo(true);
+
+async function displayCustomLocationInfo(place) {
+  await showHiddenTabInfo(true);
   const tabContent = document.getElementById('tab-content');
   const tabs = document.getElementById('tabs');
   tabs.innerHTML = '';
@@ -537,8 +535,9 @@ async function getDataFromSheet() {
 
 async function initMap() {
   getDataFromSheet().then(async values => {
-    dadosPlanilha = values;
-    marcadoresPontos = values.filter(m => !m.ancora && !(dadosPlanilha.find(f => f.ancora.toLowerCase() === 'sim' && f.latitude === m.latitude && f.longitude === m.longitude)));
+    // dadosPlanilha = values;
+    dadosPlanilha = values.filter(f => f.ancora.toLowerCase() === 'sim');
+    // marcadoresPontos = values.filter(m => !m.ancora && !(dadosPlanilha.find(f => f.ancora.toLowerCase() === 'sim' && f.latitude === m.latitude && f.longitude === m.longitude)));
 
     let isSatellite = false;
     let stylesMap = [
@@ -603,6 +602,7 @@ async function initMap() {
       streetViewControl: false,
       fullscreenControl: false,
       zoomControl: false,
+      minZoom: 4
     });
 
     createCustomFullscreenControl();
@@ -629,6 +629,20 @@ async function initMap() {
 
     await criarMarcadoresPersonalizados()
     markAnchorPoints()
+    removeMarkers(0)
+    for (const local of dadosPlanilha) {
+      if (local.ancora_principal.toLowerCase() === 'sim') {
+        const iconSize = getIconSize(map.getZoom());
+        local.marcador.setMap(map);
+        local.marcador.setIcon(new google.maps.MarkerImage(
+          local.icon.url,
+          new google.maps.Size(iconSize, iconSize),
+          new google.maps.Point(0, 0),
+          new google.maps.Point(iconSize / 2, iconSize - 24),
+          new google.maps.Size(iconSize, iconSize)
+        ));
+      }
+    }
 
     // Define o nível de zoom inicial
     let previousZoomLevel = null;
@@ -696,7 +710,23 @@ async function initMap() {
         // } else
         if (currentZoomLevel <= 5) {
           removeMarkers(0);
-        } else if (currentZoomLevel <= 12) {
+        } else if (currentZoomLevel > 5 && currentZoomLevel <= 10) {
+          removeMarkers(0);
+          for (const local of dadosPlanilha) {
+            if (local.ancora_principal.toLowerCase() === 'sim') {
+              const iconSize = getIconSize(currentZoomLevel);
+              local.marcador.setMap(map);
+              local.marcador.setIcon(new google.maps.MarkerImage(
+                local.icon.url,
+                new google.maps.Size(iconSize, iconSize),
+                new google.maps.Point(0, 0),
+                new google.maps.Point(iconSize / 2, iconSize - 24),
+                new google.maps.Size(iconSize, iconSize)
+              ));
+            }
+          }
+        }
+        else if (currentZoomLevel > 10 && currentZoomLevel <= 12) {
           for (const local of dadosPlanilha) {
             if (local.ancora.toLowerCase() === 'sim') {
               const iconSize = getIconSize(currentZoomLevel);
@@ -725,20 +755,20 @@ async function initMap() {
             }
           }
 
-          for (const local of marcadoresPontos) {
-            const latLng = new google.maps.LatLng(local.latitude, local.longitude);
-            const marcador = new google.maps.Marker({
-              position: latLng,
-              map: map,
-              icon: local.icon,
-            });
+          // for (const local of marcadoresPontos) {
+          //   const latLng = new google.maps.LatLng(local.latitude, local.longitude);
+          //   const marcador = new google.maps.Marker({
+          //     position: latLng,
+          //     map: map,
+          //     icon: local.icon,
+          //   });
 
-            marcador.addListener("click", () => {
-              displayCustomLocationInfo(local);
-            });
+          //   marcador.addListener("click", () => {
+          //     displayCustomLocationInfo(local);
+          //   });
 
-            local.marcador = marcador;
-          }
+          //   local.marcador = marcador;
+          // }
         }
         // }
       } else {
@@ -763,6 +793,15 @@ async function initMap() {
   });
 }
 
+const regionais = [
+  { codigo: "caparao", nome: "Caparaó", latitude: -20.722722, longitude: -41.591225, zoom: 10 },
+  { codigo: "central", nome: "Central", latitude: -19.456104, longitude: -40.414320, zoom: 10 },
+  { codigo: "metropolitana", nome: "Metropolitana", latitude: -20.320772, longitude: -40.337199, zoom: 11 },
+  { codigo: "norte", nome: "Norte", latitude: -18.433214, longitude: -40.389310, zoom: 10 },
+  { codigo: "serrana", nome: "Serrana", latitude: -20.153073, longitude: -40.946527, zoom: 10 },
+  { codigo: "sul", nome: "Sul", latitude: -20.871385, longitude: -41.019980, zoom: 10 },
+];
+
 function createFilterRegional() {
   regionaisControlDiv = document.createElement('div');
   regionaisControlDiv.id = 'regionais-filter';
@@ -777,14 +816,6 @@ function createFilterRegional() {
   filtrosControlDiv.appendChild(regionaisControlDiv);
 
   const regionaisContainer = regionaisControlDiv.querySelector('.options-container');
-  const regionais = [
-    { codigo: "caparao", nome: "Caparó" },
-    { codigo: "central", nome: "Central" },
-    { codigo: "metropolitana", nome: "Metropolitana" },
-    { codigo: "norte", nome: "Norte" },
-    { codigo: "serrana", nome: "Serrana" },
-    { codigo: "sul", nome: "Sul" },
-  ];
 
   regionais.forEach(regional => {
     // Cria o container do checkbox
@@ -896,10 +927,24 @@ function createFilterAtrativos() {
   });
 }
 
+async function createButtonRestartFiltersInMap() {
+  const buttonContainer = document.createElement('div');
+  buttonContainer.classList.add('filter-icon', 'rounded-3xl', 'm-2.5', 'max-h-11', 'text-white', 'text-sm', 'font-medium', 'text-white', 'cursor-pointer', 'py-2', 'px-4',);
+
+  const button = document.createElement('button');
+  button.textContent = 'Início';
+  button.style.textAlign = 'center';
+  button.addEventListener('click', async () => {
+    return initMap();
+  });
+
+  buttonContainer.appendChild(button);
+  filtrosControlDiv.appendChild(buttonContainer);
+}
+
 async function createFiltersInMap() {
   filtrosControlDiv = document.createElement('div');
   filtrosControlDiv.classList.add('justify-around', 'row', 'flex', 'bg-white', 'rounded-3xl', 'm-2.5');
-  filtrosControlDiv.style.minWidth = '350px';
 
   filtrosControlDiv.id = 'filtros-control';
 
@@ -908,14 +953,23 @@ async function createFiltersInMap() {
   createFilterMunicipio();
   createFilterAtrativos();
 
+  // Adiciona o botão de reiniciar filtros
+  await createButtonRestartFiltersInMap();
+
   // Adiciona o container de filtros ao mapa
-  map.controls[google.maps.ControlPosition.TOP_CENTER].push(filtrosControlDiv);
+  if (window.innerWidth <= 768) {
+    map.controls[google.maps.ControlPosition.TOP_LEFT].push(filtrosControlDiv);
+  } else {
+    map.controls[google.maps.ControlPosition.TOP_CENTER].push(filtrosControlDiv);
+  }
 }
 
 async function createTabInfoInMap() {
   tabInfoControlDiv = document.createElement('div');
-  tabInfoControlDiv.classList.add('bg-white', 'rounded-3xl', 'p-6', 'shadow-lg', 'm-2.5');
+  tabInfoControlDiv.classList.add('bg-white', 'rounded-3xl', 'p-6', 'shadow-lg', 'm-2.5', 'overflow-y-auto');
   tabInfoControlDiv.style.width = '49vh';
+  tabInfoControlDiv.style.maxHeight = "95vh"
+  tabInfoControlDiv.id = "tabInfoControl"
 
   tabInfoControlDiv.innerHTML = `
       <div class="text-left">
@@ -938,7 +992,7 @@ async function createTabInfoInMap() {
 }
 
 async function showHiddenTabInfo(ativaTabInfo) {
-  tabInfoControlDiv.style.display = '';
+  if (!tabInfoControlDiv.style.display && ativaTabInfo) return;
 
   if (tabInfoControlDiv.style.display === 'none' && ativaTabInfo) {
     // Mostrar o elemento
@@ -949,65 +1003,132 @@ async function showHiddenTabInfo(ativaTabInfo) {
   }
 }
 
-// async function createTabInfoInMap() {
-
-//   tabInfoControlDiv.innerHTML = `
-//       <div class="bg-gradient p-4 rounded-lg shadow-md">
-//         <img id="location-image" src="" alt="Imagem do Local" class="w-full h-48 object-cover rounded-md mb-4">
-
-
-//           <div class="flex items-center justify-between mb-2">
-//               <h2 id="location-title" class="text-xl font-bold" style="color: #065FB9;"></h2>
-//               <div class="flex items-center">
-//                   <span id="location-rating" class="text-yellow-400 text-lg mr-1"></span>
-//               </div>
-//           </div>
-
-//         <div id="tabs" class="flex space-x-2 mb-4">
-//               <button style="color: #65C4FF;" class="tab-button bg-white px-3 py-1 rounded-md active" onclick="changeTab('info')">Visão geral</button>
-//               <button style="color: #65C4FF;" class="tab-button bg-white px-3 py-1 rounded-md" onclick="changeTab('photos')">Fotos</button>
-//               <button style="color: #65C4FF;" class="tab-button bg-white px-3 py-1 rounded-md" onclick="changeTab('reviews')">Avaliações</button>
-//           </div>
-
-//         <div id="tab-content" class="p-4">
-//           <!-- Conteúdo das abas será inserido aqui -->
-//         </div>
-//       </div>
-//   `;
-
-//   // Adiciona o container de filtros ao mapa
-//   map.controls[google.maps.ControlPosition.TOP_LEFT].push(tabInfoControlDiv);
-// }
-
 ////////////////////////////// TRATAMENTO SEGMENTOS //////////////////////////////
 
 async function updateMapByAtrativos() {
-  // showHiddenTabInfo(false);
+  showHiddenTabInfo(false);
   const checkboxes = atrativosControlDiv.querySelectorAll('#atrativos-filter input[type="checkbox"]');
   const atrativosSelecionadas = Array.from(checkboxes)
     .filter(checkbox => checkbox.checked)
     .map(checkbox => checkbox.value);
 
-  if (atrativosSelecionadas.length === 0) {
-    await removeMarkers(0);
-    return markAnchorPoints();
-  }
+  let algumFiltroAtivo = false;
+  let filtroAtivo = '';
 
-  await removeMarkers(0);
-  for (const local of dadosPlanilha) {
-    for (const atrativo of atrativosSelecionadas) {
-      if (
-        removeCharacterAndSpace(local.segmento) === removeCharacterAndSpace(atrativo)
-        || (local.segmento_2 && removeCharacterAndSpace(local.segmento_2) === removeCharacterAndSpace(atrativo))
-        || (local.segmento_3 && removeCharacterAndSpace(local.segmento_3) === removeCharacterAndSpace(atrativo))
-      ) {
-        marcadoresFiltrados.push(local);
+  for (let key in filtrosUtilizados) {
+    if (filtrosUtilizados[key] === true) {
+      algumFiltroAtivo = true;
+      filtroAtivo = key;
+      break;
+    }
+  }
+  if (atrativosSelecionadas.length === 0 && algumFiltroAtivo) {
+    switch (filtroAtivo) {
+      case 'regional':
+        updateMapByRegional();
+        break;
+      case 'municipio':
+        updateMapByAtrativos();
+        break;
+
+      default:
+        break;
+    }
+
+  } else if (atrativosSelecionadas.length === 0 && !algumFiltroAtivo) {
+    await removeMarkers(0);
+    map.setZoom(8);
+    const latLng = new google.maps.LatLng(-19.663280, -40.519634);
+    map.setCenter(latLng);
+    // return markAnchorPoints();
+  } else {
+    if (atrativosSelecionadas.length === 1 && marcadoresFiltrados.length > 0) {
+      let arrAuxiliar = [];
+      for (const local of marcadoresFiltrados) {
+        for (const atrativo of atrativosSelecionadas) {
+          if (
+            removeCharacterAndSpace(local.segmento) === removeCharacterAndSpace(atrativo)
+            || (local.segmento_2 && removeCharacterAndSpace(local.segmento_2) === removeCharacterAndSpace(atrativo))
+            || (local.segmento_3 && removeCharacterAndSpace(local.segmento_3) === removeCharacterAndSpace(atrativo))
+          ) {
+            arrAuxiliar.push(local);
+          }
+        }
+      }
+      removeMarkers(0);
+      marcadoresFiltrados = arrAuxiliar;
+      markPoinstFiltered();
+    } else {
+      if (algumFiltroAtivo) {
+        removeMarkers(0);
+
+        const checkboxesRegionais = regionaisControlDiv.querySelectorAll('#regionais-filter input[type="checkbox"]');
+        const regionaisSelecionados = Array.from(checkboxesRegionais)
+          .filter(checkbox => checkbox.checked)
+          .map(checkbox => checkbox.value);
+        let arrAuxiliarRegionais = []
+        for (const local of dadosPlanilha) {
+          for (const regional of (regionaisSelecionados || [])) {
+            if (removeCharacterAndSpace(local.regional) === removeCharacterAndSpace(regional)) {
+              arrAuxiliarRegionais.push(local);
+            }
+          }
+        }
+
+        const checkboxesMunicipios = municipiosControlDiv.querySelectorAll('#municipios-filter input[type="checkbox"]');
+        const municipiosSelecionados = Array.from(checkboxesMunicipios)
+          .filter(checkbox => checkbox.checked)
+          .map(checkbox => checkbox.value);
+
+        let arrAuxiliarMunicipios = [];
+        for (const local of (arrAuxiliarRegionais || dadosPlanilha)) {
+          for (const municipio of municipiosSelecionados) {
+            if (removeCharacterAndSpace(local.cidade) === removeCharacterAndSpace(municipio)) {
+              arrAuxiliarMunicipios.push(local);
+            }
+          }
+        }
+
+        let arrAuxiliar = [];
+        let arrDoFor = [];
+
+        if (dadosPlanilha.length > 0) arrDoFor = [...dadosPlanilha];
+        if (arrAuxiliarRegionais.length > 0) arrDoFor = [...arrAuxiliarRegionais];
+        if (arrAuxiliarMunicipios.length > 0) arrDoFor = [...arrAuxiliarMunicipios];
+
+        for (const local of arrDoFor) {
+          for (const atrativo of atrativosSelecionadas) {
+            if (
+              removeCharacterAndSpace(local.segmento) === removeCharacterAndSpace(atrativo)
+              || (local.segmento_2 && removeCharacterAndSpace(local.segmento_2) === removeCharacterAndSpace(atrativo))
+              || (local.segmento_3 && removeCharacterAndSpace(local.segmento_3) === removeCharacterAndSpace(atrativo))
+            ) {
+              arrAuxiliar.push(local);
+            }
+          }
+        }
+
+        marcadoresFiltrados = arrAuxiliar;
+        markPoinstFiltered();
+
+      } else {
+        await removeMarkers(0);
+        for (const local of dadosPlanilha) {
+          for (const atrativo of atrativosSelecionadas) {
+            if (
+              removeCharacterAndSpace(local.segmento) === removeCharacterAndSpace(atrativo)
+              || (local.segmento_2 && removeCharacterAndSpace(local.segmento_2) === removeCharacterAndSpace(atrativo))
+              || (local.segmento_3 && removeCharacterAndSpace(local.segmento_3) === removeCharacterAndSpace(atrativo))
+            ) {
+              marcadoresFiltrados.push(local);
+            }
+          }
+        }
+        markPoinstFiltered(); //marcadoresFiltrados já é de escopo global
       }
     }
   }
-  markPoinstFiltered(); //marcadoresFiltrados já é de escopo global
 }
-
 
 ////////////////////////////// TRATAMENTO MUNICIPIO //////////////////////////////
 
@@ -1065,26 +1186,45 @@ function montaArrayDeMunicipos(regionaisSelecionadas) {
 }
 
 async function updateMapByMunicipio() {
-  // showHiddenTabInfo(false);
+  showHiddenTabInfo(false);
   const checkboxes = municipiosControlDiv.querySelectorAll('#municipios-filter input[type="checkbox"]');
   const municipiosSelecionados = Array.from(checkboxes)
     .filter(checkbox => checkbox.checked)
     .map(checkbox => checkbox.value);
 
   let algumFiltroAtivo = false;
+  let filtroAtivo = '';
 
   for (let key in filtrosUtilizados) {
     if (filtrosUtilizados[key] === true) {
       algumFiltroAtivo = true;
+      filtroAtivo = key;
       break;
     }
   }
 
-  if (municipiosSelecionados.length === 0 && !algumFiltroAtivo) {
-    await removeMarkers(0);
-    return markAnchorPoints();
-  } else {
+  if (municipiosSelecionados.length === 0 && algumFiltroAtivo) {
 
+    switch (filtroAtivo) {
+      case 'regional':
+        updateMapByRegional();
+        break;
+      case 'atrativo':
+        updateMapByAtrativos();
+        break;
+
+      default:
+        break;
+    }
+
+  } else if (municipiosSelecionados.length === 0 && !algumFiltroAtivo) {
+    await removeMarkers(0);
+    map.setZoom(8);
+    const latLng = new google.maps.LatLng(-19.663280, -40.519634);
+    map.setCenter(latLng);
+    // return markAnchorPoints();
+
+  } else {
     await removeMarkers(0);
     for (const local of dadosPlanilha) {
       for (const municipio of municipiosSelecionados) {
@@ -1093,10 +1233,21 @@ async function updateMapByMunicipio() {
         }
       }
     }
-    markPoinstFiltered(); //marcadoresFiltrados já é de escopo global
+    // markPoinstFiltered(); //marcadoresFiltrados já é de escopo global
+
+    if (municipiosSelecionados.length === 1) {
+      const infoCidade = marcadoresFiltrados.find(f => f.cidade === municipiosSelecionados[0])
+      map.setZoom(11);
+      const latLng = new google.maps.LatLng(infoCidade.latitude, infoCidade.longitude);
+      map.setCenter(latLng);
+
+    } else {
+      map.setZoom(8);
+      const latLng = new google.maps.LatLng(-19.663280, -40.519634);
+      map.setCenter(latLng);
+    }
   }
 }
-
 
 ////////////////////////////// TRATAMENTO REGIAO //////////////////////////////
 const dadosCorRegioes = [
@@ -1114,8 +1265,7 @@ function removerDemarcacoesAtuais() {
 }
 
 async function updateMapByRegional() {
-
-  // showHiddenTabInfo(false);
+  showHiddenTabInfo(false);
 
   filtrosUtilizados.regional = true;
   const zoomLevel = map.getZoom();
@@ -1127,27 +1277,62 @@ async function updateMapByRegional() {
     .filter(checkbox => checkbox.checked)
     .map(checkbox => checkbox.value);
 
-  if (regionaisSelecionadas.length === 0) {
+  let algumFiltroAtivo = false;
+  let filtroAtivo = '';
+
+  for (let key in filtrosUtilizados) {
+    if (filtrosUtilizados[key] === true) {
+      algumFiltroAtivo = true;
+      filtroAtivo = key;
+      break;
+    }
+  }
+
+  if (regionaisSelecionadas.length === 0 && algumFiltroAtivo) {
+
+    switch (filtroAtivo) {
+      case 'municipio':
+        updateMapByRegional();
+        break;
+      case 'atrativo':
+        updateMapByAtrativos();
+        break;
+
+      default:
+        break;
+    }
+
+    montaArrayDeMunicipos();
+    map.setZoom(8);
+    const latLng = new google.maps.LatLng(-19.663280, -40.519634);
+    map.setCenter(latLng);
+
+  } else if (regionaisSelecionadas.length === 0 && !algumFiltroAtivo) {
     filtrosUtilizados.regional = false;
     await removeMarkers(0);
     markAnchorPoints();
-    if (zoomLevel > 12) {
 
-      for (const local of marcadoresPontos) {
-        const latLng = new google.maps.LatLng(local.latitude, local.longitude);
-        const marcador = new google.maps.Marker({
-          position: latLng,
-          map: map,
-          icon: local.icon,
-        });
+    map.setZoom(8);
+    const latLng = new google.maps.LatLng(-19.663280, -40.519634);
+    map.setCenter(latLng);
 
-        marcador.addListener("click", () => {
-          displayCustomLocationInfo(local);
-        });
+    // if (zoomLevel > 12) {
 
-        local.marcador = marcador;
-      }
-    }
+    //   for (const local of marcadoresPontos) {
+    //     const latLng = new google.maps.LatLng(local.latitude, local.longitude);
+    //     const marcador = new google.maps.Marker({
+    //       position: latLng,
+    //       map: map,
+    //       icon: local.icon,
+    //     });
+
+    //     marcador.addListener("click", () => {
+    //       displayCustomLocationInfo(local);
+    //     });
+
+    //     local.marcador = marcador;
+    //   }
+    // }
 
     return montaArrayDeMunicipos();
   } else {
@@ -1207,8 +1392,16 @@ async function updateMapByRegional() {
         .catch(error => {
           console.error('Erro ao buscar os dados: ', error);
         });
+    }
 
-      map.setZoom(8);
+    if (regionaisSelecionadas.length === 1) {
+      const infoRegional = regionais.find(f => f.codigo === regionaisSelecionadas[0])
+      map.setZoom(infoRegional.zoom);
+      const latLng = new google.maps.LatLng(infoRegional.latitude, infoRegional.longitude);
+      map.setCenter(latLng);
+
+    } else {
+      map.setZoom(9);
     }
   }
 }

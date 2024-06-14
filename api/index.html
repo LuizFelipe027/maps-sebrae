@@ -128,20 +128,60 @@
       -ms-transform: rotate(45deg);
       transform: rotate(45deg);
     }
-    
+
+    .truncate {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    #filtros-control {
+      min-width: 350px;
+      /* Largura padrão */
+    }
+
+    @media (max-width: 768px) {
+
+      /* Ajuste para telas menores (mobile) */
+      #map-container {
+        flex-direction: column;
+        /* Coloca o mapa e a aba em coluna */
+      }
+
+      #sidebar {
+        width: 100%;
+        order: 2;
+      }
+
+      #filtros-control {
+        min-width: 37vw;
+        display: flex;
+        flex-direction: column;
+      }
+
+      #tabInfoControl {
+        display: none;
+      }
+    }
+
     ::-webkit-scrollbar {
-      width: 12px;               /* width of the entire scrollbar */
+      width: 12px;
+      /* width of the entire scrollbar */
     }
 
     ::-webkit-scrollbar-track {
-      background: #5891D3; 
-      border-radius: 20px;       /* color of the tracking area */
+      background: #5891D3;
+      border-radius: 20px;
+      /* color of the tracking area */
     }
 
     ::-webkit-scrollbar-thumb {
-      background-color: white;    /* color of the scroll thumb */
-      border-radius: 20px;       /* roundness of the scroll thumb */
-      border: 1px solid rgb(220, 220, 220);  /* creates padding around scroll thumb */
+      background-color: white;
+      /* color of the scroll thumb */
+      border-radius: 20px;
+      /* roundness of the scroll thumb */
+      border: 1px solid rgb(220, 220, 220);
+      /* creates padding around scroll thumb */
       width: 6px;
     }
   </style>

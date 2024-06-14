@@ -355,7 +355,11 @@ async function displayLocationInfo(place) {
   const tabContent = tabInfoControlDiv.querySelector('#tab-content');
 
   // Configurar imagem, título e classificação
-  locationImage.src = place.photos ? place.photos[0].getUrl({ maxWidth: 800, maxHeight: 600 }) : place?.imagem_para_quando_nao_tiver_gmn || '';
+  locationImage.src = place.photos ? place.photos[0].getUrl({ maxWidth: 800, maxHeight: 600 }) : '';
+  if (place?.imagem_para_quando_nao_tiver_gmn) {
+    locationImage.src = place?.imagem_para_quando_nao_tiver_gmn || '';
+  }
+
   locationTitle.textContent = place.nome_no_mapa || place.name || place.ponto;
   if (place.rating) {
     locationRating.innerHTML = `${place.rating || 'N/A'} <i class="fas fa-star text-yellow-400"></i> (${place.user_ratings_total || 0})`;
@@ -1016,7 +1020,9 @@ async function showHiddenTabInfo(ativaTabInfo) {
 ////////////////////////////// TRATAMENTO SEGMENTOS //////////////////////////////
 
 async function updateMapByAtrativos() {
+  console.log('teste')
   showHiddenTabInfo(false);
+  filtrosUtilizados.atrativo = true;
   const checkboxes = atrativosControlDiv.querySelectorAll('#atrativos-filter input[type="checkbox"]');
   const atrativosSelecionadas = Array.from(checkboxes)
     .filter(checkbox => checkbox.checked)
@@ -1033,6 +1039,7 @@ async function updateMapByAtrativos() {
     }
   }
   if (atrativosSelecionadas.length === 0 && algumFiltroAtivo) {
+    filtrosUtilizados.atrativo = false;
     switch (filtroAtivo) {
       case 'regional':
         updateMapByRegional();
@@ -1046,6 +1053,7 @@ async function updateMapByAtrativos() {
     }
 
   } else if (atrativosSelecionadas.length === 0 && !algumFiltroAtivo) {
+    filtrosUtilizados.atrativo = false;
     await removeMarkers(0);
     map.setZoom(8);
     const latLng = new google.maps.LatLng(-19.663280, -40.519634);
@@ -1197,6 +1205,7 @@ function montaArrayDeMunicipos(regionaisSelecionadas) {
 
 async function updateMapByMunicipio() {
   showHiddenTabInfo(false);
+  filtrosUtilizados.municipio = true;
   const checkboxes = municipiosControlDiv.querySelectorAll('#municipios-filter input[type="checkbox"]');
   const municipiosSelecionados = Array.from(checkboxes)
     .filter(checkbox => checkbox.checked)
@@ -1214,7 +1223,7 @@ async function updateMapByMunicipio() {
   }
 
   if (municipiosSelecionados.length === 0 && algumFiltroAtivo) {
-
+    filtrosUtilizados.municipio = false;
     switch (filtroAtivo) {
       case 'regional':
         updateMapByRegional();
@@ -1228,6 +1237,7 @@ async function updateMapByMunicipio() {
     }
 
   } else if (municipiosSelecionados.length === 0 && !algumFiltroAtivo) {
+    filtrosUtilizados.municipio = false;
     await removeMarkers(0);
     map.setZoom(8);
     const latLng = new google.maps.LatLng(-19.663280, -40.519634);
@@ -1294,15 +1304,17 @@ async function updateMapByRegional() {
     if (filtrosUtilizados[key] === true) {
       algumFiltroAtivo = true;
       filtroAtivo = key;
-      break;
+
     }
   }
 
   if (regionaisSelecionadas.length === 0 && algumFiltroAtivo) {
 
+    console.log(filtroAtivo)
+
     switch (filtroAtivo) {
       case 'municipio':
-        updateMapByRegional();
+        updateMapByMunicipio();
         break;
       case 'atrativo':
         updateMapByAtrativos();
@@ -1346,19 +1358,78 @@ async function updateMapByRegional() {
 
     return montaArrayDeMunicipos();
   } else {
-    let arrCondicionalApoio = dadosPlanilha;
-    if (zoomLevel <= 12) {
-      arrCondicionalApoio = dadosPlanilha.filter(f => f.ancora.toLowerCase() === 'sim')
-    }
-    await removeMarkers(0);
-    for (const regional of regionaisSelecionadas) {
-      for (const local of arrCondicionalApoio) {
-        if (removeCharacterAndSpace(local.regional) === regional) {
-          marcadoresFiltrados.push(local);
+
+
+    if (algumFiltroAtivo) {
+      removeMarkers(0);
+
+      const checkboxesMunicipios = municipiosControlDiv.querySelectorAll('#municipios-filter input[type="checkbox"]');
+      const municipiosSelecionados = Array.from(checkboxesMunicipios)
+        .filter(checkbox => checkbox.checked)
+        .map(checkbox => checkbox.value);
+
+      let arrAuxiliarMunicipios = [];
+      for (const local of dadosPlanilha) {
+        for (const municipio of municipiosSelecionados) {
+          if (removeCharacterAndSpace(local.cidade) === removeCharacterAndSpace(municipio)) {
+            arrAuxiliarMunicipios.push(local);
+          }
         }
       }
+
+      const checkboxesAtrativos = atrativosControlDiv.querySelectorAll('#atrativos-filter input[type="checkbox"]');
+      const atrativosSelecionados = Array.from(checkboxesAtrativos)
+        .filter(checkbox => checkbox.checked)
+        .map(checkbox => checkbox.value);
+      let arrDoForAtrativo = [];
+      let arrAuxiliarAtrativos = [];
+      if (dadosPlanilha.length > 0) arrDoForAtrativo = [...dadosPlanilha];
+      if (arrAuxiliarMunicipios.length > 0) arrDoForAtrativo = [...arrAuxiliarMunicipios];
+
+      for (const local of arrDoForAtrativo) {
+        for (const atrativo of atrativosSelecionados) {
+          if (
+            removeCharacterAndSpace(local.segmento) === removeCharacterAndSpace(atrativo)
+            || (local.segmento_2 && removeCharacterAndSpace(local.segmento_2) === removeCharacterAndSpace(atrativo))
+            || (local.segmento_3 && removeCharacterAndSpace(local.segmento_3) === removeCharacterAndSpace(atrativo))
+          ) {
+            arrAuxiliarAtrativos.push(local);
+          }
+        }
+      }
+
+      let arrAuxiliar = [];
+      let arrDoFor = [];
+      if (dadosPlanilha.length > 0) arrDoFor = [...dadosPlanilha];
+      if (arrAuxiliarMunicipios.length > 0) arrDoFor = [...arrAuxiliarMunicipios];
+      if (arrAuxiliarAtrativos.length > 0) arrDoFor = [...arrAuxiliarAtrativos];
+
+      for (const local of arrDoFor) {
+        for (const regional of (regionaisSelecionadas || [])) {
+          if (removeCharacterAndSpace(local.regional) === removeCharacterAndSpace(regional)) {
+            arrAuxiliar.push(local);
+          }
+        }
+      }
+      marcadoresFiltrados = arrAuxiliar;
+      markPoinstFiltered();
+    } else {
+
+      let arrayCondicionalApoio = dadosPlanilha;
+      if (zoomLevel <= 12) {
+        arrayCondicionalApoio = dadosPlanilha.filter(f => f.ancora.toLowerCase() === 'sim')
+      }
+      await removeMarkers(0);
+      for (const regional of regionaisSelecionadas) {
+        for (const local of arrayCondicionalApoio) {
+          if (removeCharacterAndSpace(local.regional) === regional) {
+            marcadoresFiltrados.push(local);
+          }
+        }
+      }
+      markPoinstFiltered();
     }
-    markPoinstFiltered();
+
 
     montaArrayDeMunicipos(regionaisSelecionadas); // Passa um array de regiões selecionadas
     const municipiosPorRegional = buscaRegioes(regionaisSelecionadas);

@@ -1020,7 +1020,6 @@ async function showHiddenTabInfo(ativaTabInfo) {
 ////////////////////////////// TRATAMENTO SEGMENTOS //////////////////////////////
 
 async function updateMapByAtrativos() {
-  console.log('teste')
   showHiddenTabInfo(false);
   filtrosUtilizados.atrativo = true;
   const checkboxes = atrativosControlDiv.querySelectorAll('#atrativos-filter input[type="checkbox"]');
@@ -1032,12 +1031,13 @@ async function updateMapByAtrativos() {
   let filtroAtivo = '';
 
   for (let key in filtrosUtilizados) {
-    if (filtrosUtilizados[key] === true) {
+    if (filtrosUtilizados[key] === true && key !== 'atrativo') {
       algumFiltroAtivo = true;
       filtroAtivo = key;
       break;
     }
   }
+
   if (atrativosSelecionadas.length === 0 && algumFiltroAtivo) {
     filtrosUtilizados.atrativo = false;
     switch (filtroAtivo) {
@@ -1059,6 +1059,22 @@ async function updateMapByAtrativos() {
     const latLng = new google.maps.LatLng(-19.663280, -40.519634);
     map.setCenter(latLng);
     // return markAnchorPoints();
+  } else if (atrativosSelecionadas.length === 1 && !algumFiltroAtivo) {
+    let arrAuxiliar = [];
+    for (const local of dadosPlanilha) {
+      for (const atrativo of atrativosSelecionadas) {
+        if (
+          removeCharacterAndSpace(local.segmento) === removeCharacterAndSpace(atrativo)
+          || (local.segmento_2 && removeCharacterAndSpace(local.segmento_2) === removeCharacterAndSpace(atrativo))
+          || (local.segmento_3 && removeCharacterAndSpace(local.segmento_3) === removeCharacterAndSpace(atrativo))
+        ) {
+          arrAuxiliar.push(local);
+        }
+      }
+    }
+    removeMarkers(0);
+    marcadoresFiltrados = arrAuxiliar;
+    markPoinstFiltered();
   } else {
     if (atrativosSelecionadas.length === 1 && marcadoresFiltrados.length > 0) {
       let arrAuxiliar = [];
@@ -1309,8 +1325,7 @@ async function updateMapByRegional() {
   }
 
   if (regionaisSelecionadas.length === 0 && algumFiltroAtivo) {
-
-    console.log(filtroAtivo)
+    filtrosUtilizados.regional = false;
 
     switch (filtroAtivo) {
       case 'municipio':

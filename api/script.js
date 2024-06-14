@@ -136,7 +136,11 @@ function createCustomZoomControl() {
   zoomControlDiv.appendChild(innerCircleLess);
 
   // Adiciona o controle ao mapa
-  map.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(zoomControlDiv);
+  if (window.innerWidth <= 768) {
+    map.controls[google.maps.ControlPosition.RIGHT_TOP].push(zoomControlDiv);
+  } else {
+    map.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(zoomControlDiv);
+  }
 }
 
 let marcadorES = null;
@@ -930,10 +934,10 @@ function createFilterAtrativos() {
 async function createButtonRestartFiltersInMap() {
   const buttonContainer = document.createElement('div');
   buttonContainer.classList.add('filter-icon', 'rounded-3xl', 'm-2.5', 'max-h-11', 'text-white', 'text-sm', 'font-medium', 'text-white', 'cursor-pointer', 'py-2', 'px-4',);
+  buttonContainer.style.textAlign = 'center';
 
   const button = document.createElement('button');
   button.textContent = 'Início';
-  button.style.textAlign = 'center';
   button.addEventListener('click', async () => {
     return initMap();
   });
@@ -988,7 +992,13 @@ async function createTabInfoInMap() {
   `;
 
   // Adiciona o container de filtros ao mapa
-  map.controls[google.maps.ControlPosition.TOP_LEFT].push(tabInfoControlDiv);
+  if (window.innerWidth <= 768) {
+    tabInfoControlDiv.style.maxHeight = "40vh";
+    tabInfoControlDiv.style.width = "51vh";
+    map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(tabInfoControlDiv);
+  } else {
+    map.controls[google.maps.ControlPosition.TOP_LEFT].push(tabInfoControlDiv);
+  }
 }
 
 async function showHiddenTabInfo(ativaTabInfo) {
